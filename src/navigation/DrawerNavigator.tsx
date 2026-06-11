@@ -39,12 +39,24 @@ function DrawerContent({ navigation }: any) {
 
   const menuItems = [
     { label: "Home", icon: "home-variant-outline", route: "MainTabs" },
-    { label: "Announcements", icon: "bullhorn-outline", route: Routes.Announcements },
+    {
+      label: "Announcements",
+      icon: "bullhorn-outline",
+      route: Routes.Announcements,
+    },
     { label: "─ Community", isSection: true },
     { label: "Youth Club", icon: "run", route: Routes.YouthClub },
     { label: "Women's Club", icon: "human-female", route: Routes.WomensClub },
-    { label: "Widow Support", icon: "handshake-outline", route: Routes.WidowSupport },
-    { label: "Children's Fund", icon: "baby-face-outline", route: Routes.ChildrenScholarship },
+    {
+      label: "Widow Support",
+      icon: "handshake-outline",
+      route: Routes.WidowSupport,
+    },
+    {
+      label: "Children's Fund",
+      icon: "baby-face-outline",
+      route: Routes.ChildrenScholarship,
+    },
     { label: "─ Explore", isSection: true },
     { label: "Gallery", icon: "image-multiple-outline", route: Routes.Gallery },
     { label: "Jobs", icon: "briefcase-outline", route: Routes.Jobs },
@@ -192,6 +204,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   menuIcon: {
+    fontSize: 18,
     marginRight: Spacing.md,
     width: 24,
     textAlign: "center",
