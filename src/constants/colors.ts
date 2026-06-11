@@ -1,0 +1,56 @@
+export const Colors = {
+  primary: {
+    navy: '#1A3A5C',
+    navyLight: '#2E5DA3',
+    navyDark: '#0F2240',
+  },
+  accent: {
+    gold: '#C9A84C',
+    goldLight: '#F0C040',
+    goldPale: '#FFF8E7',
+    goldDark: '#A07830',
+  },
+  sky: {
+    blue: '#4A90D9',
+    blueLight: '#E8F4FD',
+    blueDark: '#2C5F8A',
+    bluePale: '#DBEAFE',
+  },
+  neutral: {
+    white: '#FFFFFF',
+    warmWhite: '#FAFAF8',
+    cream: '#F5F0E8',
+    gray100: '#F3F4F6',
+    gray200: '#E5E7EB',
+    gray300: '#D1D5DB',
+    gray400: '#9CA3AF',
+    gray500: '#6B7280',
+    gray600: '#4B5563',
+    gray700: '#374151',
+    gray800: '#1F2937',
+    gray900: '#111827',
+  },
+  semantic: {
+    success: '#10B981',
+    successBg: '#D1FAE5',
+    warning: '#F59E0B',
+    warningBg: '#FEF3C7',
+    error: '#EF4444',
+    errorBg: '#FEE2E2',
+    info: '#3B82F6',
+    infoBg: '#DBEAFE',
+    live: '#EF4444',
+  },
+  liturgical: {
+    ordinary: '#4ADE80',
+    advent: '#7C3AED',
+    lent: '#7C3AED',
+    christmas: '#C9A84C',
+    easter: '#F0C040',
+    pentecost: '#EF4444',
+    marian: '#2563EB',
+  },
+  transparent: 'transparent',
+};
+
+export type ColorKeys = typeof Colors;

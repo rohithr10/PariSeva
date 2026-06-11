@@ -1,0 +1,182 @@
+import React, { useState } from 'react';
+import {
+  View, Text, StyleSheet, ScrollView,
+  StatusBar, TouchableOpacity, KeyboardAvoidingView, Platform, Alert,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Colors } from '../../constants/colors';
+import { Spacing, Radius, Shadow } from '../../constants/spacing';
+import Input from '../../components/common/Input/Input';
+import Button from '../../components/common/Button/Button';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
+
+const CERT_TYPES = [
+  { id: 'baptism', label: 'Baptism', labelTA: 'ஞானஸ்நானம்', icon: 'water-outline' },
+  { id: 'confirmation', label: 'Confirmation', labelTA: 'திருதைலம்', icon: 'bird' },
+  { id: 'marriage', label: 'Marriage', labelTA: 'திருமணம்', icon: 'ring' },
+  { id: 'death', label: 'Death', labelTA: 'மரண சான்று', icon: 'candle' },
+];
+
+const MEMBERS = ['Thomas Raj', 'Mary Raj', 'John Thomas', 'Priya Thomas'];
+const PURPOSES = ['Personal Records', 'Government', 'Marriage', 'Visa', 'Other'];
+
+export default function CertificateRequestScreen() {
+  const navigation = useNavigation<any>();
+  const [certType, setCertType] = useState('');
+  const [member, setMember] = useState('');
+  const [purpose, setPurpose] = useState('');
+  const [copies, setCopies] = useState('1');
+  const [remarks, setRemarks] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!certType || !member || !purpose) {
+      Alert.alert('Missing Fields', 'Please fill all required fields.');
+      return;
+    }
+    setLoading(true);
+    await new Promise<void>(r => setTimeout(r, 1200));
+    setLoading(false);
+    Alert.alert(
+      'Request Submitted',
+      'Your certificate request has been submitted. You will be notified once it is approved (usually within 2–3 working days).',
+      [{ text: 'OK', onPress: () => navigation.goBack() }],
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
+      <TopSafeArea color={Colors.neutral.white} />
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialCommunityIcons name="arrow-left" style={styles.backIcon} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Request Certificate</Text>
+        <View style={{ width: 32 }} />
+      </View>
+
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <Text style={styles.label}>Certificate Type *</Text>
+          <View style={styles.typeGrid}>
+            {CERT_TYPES.map(ct => (
+              <TouchableOpacity
+                key={ct.id}
+                style={[styles.typeCard, certType === ct.id && styles.typeCardActive]}
+                onPress={() => setCertType(ct.id)}>
+                <MaterialCommunityIcons name={ct.icon} style={styles.typeIcon} />
+                <Text style={[styles.typeLabel, certType === ct.id && styles.typeLabelActive]}>{ct.label}</Text>
+                <Text style={styles.typeLabelTA}>{ct.labelTA}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.label}>For Member *</Text>
+          <View style={styles.pillRow}>
+            {MEMBERS.map(m => (
+              <TouchableOpacity
+                key={m}
+                style={[styles.pill, member === m && styles.pillActive]}
+                onPress={() => setMember(m)}>
+                <Text style={[styles.pillText, member === m && styles.pillTextActive]}>{m}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.label}>Purpose *</Text>
+          <View style={styles.pillRow}>
+            {PURPOSES.map(p => (
+              <TouchableOpacity
+                key={p}
+                style={[styles.pill, purpose === p && styles.pillActive]}
+                onPress={() => setPurpose(p)}>
+                <Text style={[styles.pillText, purpose === p && styles.pillTextActive]}>{p}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Input
+            label="No. of Copies"
+            value={copies}
+            onChangeText={t => setCopies(t.replace(/[^0-9]/g, ''))}
+            keyboardType="numeric"
+            maxLength={1}
+          />
+          <Input
+            label="Additional Remarks"
+            value={remarks}
+            onChangeText={setRemarks}
+            placeholder="Any specific requirements..."
+            multiline
+          />
+
+          <View style={styles.feeCard}>
+            <Text style={styles.feeTitle}><MaterialCommunityIcons name="note-edit-outline" size={13} /> Certificate Fee</Text>
+            <Text style={styles.feeText}>₹50 per copy · Payable at the parish office upon collection</Text>
+          </View>
+
+          <Button title="Submit Request" onPress={handleSubmit} loading={loading} fullWidth size="lg" style={styles.submitBtn} />
+          <View style={{ height: 32 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.neutral.warmWhite },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.screen,
+    paddingVertical: 14,
+    backgroundColor: Colors.neutral.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.neutral.gray200,
+  },
+  backIcon: { color: Colors.primary.navy, fontSize: 22 },
+  headerTitle: { color: Colors.primary.navy, fontSize: 18, fontWeight: '700' },
+  scroll: { padding: Spacing.screen },
+  label: { fontSize: 14, fontWeight: '600', color: Colors.primary.navy, marginBottom: Spacing.sm, marginTop: Spacing.sm },
+  typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
+  typeCard: {
+    width: '47%',
+    backgroundColor: Colors.neutral.white,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.neutral.gray200,
+    ...Shadow.sm,
+  },
+  typeCardActive: { borderColor: Colors.accent.gold, backgroundColor: Colors.accent.goldPale },
+  typeIcon: { fontSize: 28, marginBottom: 6 , color: Colors.primary.navy},
+  typeLabel: { fontSize: 14, fontWeight: '600', color: Colors.neutral.gray700 },
+  typeLabelActive: { color: Colors.primary.navy },
+  typeLabelTA: { fontSize: 11, color: Colors.neutral.gray400, marginTop: 2 },
+  pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs, marginBottom: Spacing.md },
+  pill: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.neutral.white,
+    borderWidth: 1,
+    borderColor: Colors.neutral.gray200,
+  },
+  pillActive: { backgroundColor: Colors.accent.gold, borderColor: Colors.accent.gold },
+  pillText: { fontSize: 13, color: Colors.neutral.gray500 },
+  pillTextActive: { color: Colors.neutral.white, fontWeight: '700' },
+  feeCard: {
+    backgroundColor: Colors.sky.bluePale,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  feeTitle: { fontSize: 14, fontWeight: '700', color: Colors.primary.navy, marginBottom: 4 },
+  feeText: { fontSize: 13, color: Colors.neutral.gray600 },
+  submitBtn: { marginTop: Spacing.sm },
+});
