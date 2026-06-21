@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
 import { Colors } from '../../constants/colors';
 import { Spacing, Radius, Shadow } from '../../constants/spacing';
@@ -23,18 +24,21 @@ import type { User } from '../../types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
+import { setAppLanguage, type AppLanguage } from '../../i18n';
 
 type Props = NativeStackScreenProps<AuthStackParamList, typeof Routes.Login>;
 
 export default function LoginScreen({ navigation, route }: Props) {
   const dispatch = useAppDispatch();
+  const { t, i18n } = useTranslation();
   const church = route.params?.church;
 
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [lang, setLang] = useState<'en' | 'ta'>('en');
   const [errors, setErrors] = useState<{ phone?: string; password?: string }>({});
+
+  const lang = (i18n.language as AppLanguage) ?? 'en';
 
   const validate = () => {
     const e: typeof errors = {};
@@ -94,8 +98,8 @@ export default function LoginScreen({ navigation, route }: Props) {
             <View style={styles.heroIconRing}>
               <MaterialCommunityIcons name="church" size={34} color={Colors.accent.goldLight} />
             </View>
-            <Text style={styles.greeting}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Login to your family account</Text>
+            <Text style={styles.greeting}>{t('auth.login_title')}</Text>
+            <Text style={styles.subtitle}>{t('auth.login_subtitle')}</Text>
 
             {church && (
               <View style={styles.churchBadge}>
@@ -108,10 +112,10 @@ export default function LoginScreen({ navigation, route }: Props) {
           {/* Floating form card */}
           <View style={styles.card}>
             <Input
-              label="Mobile Number"
+              label={t('auth.phone')}
               value={phone}
               onChangeText={setPhone}
-              placeholder="10-digit mobile number"
+              placeholder={t('auth.phone_placeholder')}
               keyboardType="phone-pad"
               autoCapitalize="none"
               maxLength={10}
@@ -125,10 +129,10 @@ export default function LoginScreen({ navigation, route }: Props) {
             />
 
             <Input
-              label="Password"
+              label={t('auth.password')}
               value={password}
               onChangeText={setPassword}
-              placeholder="Enter your password"
+              placeholder={t('auth.password_placeholder')}
               secureTextEntry
               autoCapitalize="none"
               error={errors.password}
@@ -141,11 +145,11 @@ export default function LoginScreen({ navigation, route }: Props) {
               style={styles.forgotRow}
               onPress={() => navigation.navigate(Routes.ForgotPassword)}
               hitSlop={8}>
-              <Text style={styles.forgotText}>Forgot Password?</Text>
+              <Text style={styles.forgotText}>{t('auth.forgot_password')}</Text>
             </TouchableOpacity>
 
             <Button
-              title="Login"
+              title={t('auth.login')}
               onPress={handleLogin}
               loading={loading}
               fullWidth
@@ -155,9 +159,9 @@ export default function LoginScreen({ navigation, route }: Props) {
           </View>
 
           <View style={styles.registerRow}>
-            <Text style={styles.registerText}>New to PariSeva? </Text>
+            <Text style={styles.registerText}>{t('auth.new_user')} </Text>
             <TouchableOpacity onPress={() => navigation.navigate(Routes.Register, { church })} hitSlop={8}>
-              <Text style={styles.registerLink}>Create Account</Text>
+              <Text style={styles.registerLink}>{t('auth.create_account')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -170,7 +174,7 @@ export default function LoginScreen({ navigation, route }: Props) {
               <TouchableOpacity
                 key={l.key}
                 style={[styles.langPill, lang === l.key && styles.langPillActive]}
-                onPress={() => setLang(l.key)}>
+                onPress={() => setAppLanguage(l.key)}>
                 <Text style={[styles.langText, lang === l.key && styles.langTextActive]}>
                   {l.label}
                 </Text>

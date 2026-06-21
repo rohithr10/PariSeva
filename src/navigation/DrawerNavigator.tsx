@@ -16,6 +16,7 @@ import { Spacing, Radius } from "../constants/spacing";
 import { Typography } from "../constants/typography";
 import { Routes } from "../constants/routes";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { useTranslation } from "react-i18next";
 import { useAppSelector } from "../hooks/useAppDispatch";
 import { selectUser, selectChurch } from "../store/slices/auth.slice";
 import type { DrawerParamList } from "./types";
@@ -36,32 +37,33 @@ const Drawer = createDrawerNavigator<DrawerParamList>();
 function DrawerContent({ navigation }: any) {
   const user = useAppSelector(selectUser);
   const church = useAppSelector(selectChurch);
+  const { t } = useTranslation();
 
   const menuItems = [
-    { label: "Home", icon: "home-variant-outline", route: "MainTabs" },
+    { label: t("nav.home"), icon: "home-variant-outline", route: "MainTabs" },
     {
-      label: "Announcements",
+      label: t("drawer.announcements"),
       icon: "bullhorn-outline",
       route: Routes.Announcements,
     },
-    { label: "─ Community", isSection: true },
-    { label: "Youth Club", icon: "run", route: Routes.YouthClub },
-    { label: "Women's Club", icon: "human-female", route: Routes.WomensClub },
+    { label: t("drawer.community"), isSection: true },
+    { label: t("drawer.youth_club"), icon: "run", route: Routes.YouthClub },
+    { label: t("drawer.womens_club"), icon: "human-female", route: Routes.WomensClub },
     {
-      label: "Widow Support",
+      label: t("drawer.widow_support"),
       icon: "handshake-outline",
       route: Routes.WidowSupport,
     },
     {
-      label: "Children's Fund",
+      label: t("drawer.childrens_fund"),
       icon: "baby-face-outline",
       route: Routes.ChildrenScholarship,
     },
-    { label: "─ Explore", isSection: true },
-    { label: "Gallery", icon: "image-multiple-outline", route: Routes.Gallery },
-    { label: "Jobs", icon: "briefcase-outline", route: Routes.Jobs },
-    { label: "─ More", isSection: true },
-    { label: "Contact Church", icon: "phone-outline", route: Routes.Contact },
+    { label: t("drawer.explore"), isSection: true },
+    { label: t("drawer.gallery"), icon: "image-multiple-outline", route: Routes.Gallery },
+    { label: t("drawer.jobs"), icon: "briefcase-outline", route: Routes.Jobs },
+    { label: t("drawer.more"), isSection: true },
+    { label: t("drawer.contact_church"), icon: "phone-outline", route: Routes.Contact },
   ];
 
   return (
@@ -85,7 +87,7 @@ function DrawerContent({ navigation }: any) {
           if (item.isSection) {
             return (
               <Text key={index} style={styles.sectionLabel}>
-                {item.label.replace("─ ", "")}
+                {item.label}
               </Text>
             );
           }

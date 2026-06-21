@@ -67,7 +67,9 @@
     "password_strength_medium": "Medium",
     "password_strength_strong": "Strong",
     "reset_password": "Reset Password",
-    "enter_new_password": "Enter New Password"
+    "enter_new_password": "Enter New Password",
+    "login_subtitle": "Login to your family account",
+    "password_placeholder": "Enter your password"
   },
   "onboarding": {
     "slide1_title": "Stay Connected with Your Parish",
@@ -100,7 +102,14 @@
     "today_feast": "Today's Feast Day",
     "view_mass_timings": "View Mass Timings",
     "annual_goal": "Annual Goal",
-    "donation_summary": "{{year}} Giving"
+    "donation_summary": "{{year}} Giving",
+    "join": "Join",
+    "remind": "Remind",
+    "see_all": "See All",
+    "read_more": "Read More",
+    "give_now": "Give Now",
+    "certificate_request": "Certificate\nRequest",
+    "your_parish": "Your Parish"
   },
   "mass": {
     "mass": "Mass",
@@ -322,7 +331,18 @@
     "notification_mass": "Mass Reminders",
     "notification_donations": "Donation Updates",
     "notification_announcements": "Announcements",
-    "notification_certificates": "Certificate Status"
+    "notification_certificates": "Certificate Status",
+    "display": "Display",
+    "dark_mode": "Dark Mode (Bible Reader)",
+    "account": "Account",
+    "change_password": "Change Password",
+    "update_mobile": "Update Mobile Number",
+    "update_email": "Update Email",
+    "delete_account": "Delete Account",
+    "app_version": "App Version",
+    "privacy_policy": "Privacy Policy",
+    "contact_support": "Contact Support",
+    "about_section": "About"
   },
   "admin": {
     "dashboard": "Parish Dashboard",
@@ -343,5 +363,25 @@
     "verify": "Verify",
     "generate": "Generate Certificate",
     "export_report": "Export Report"
+  },
+  "nav": {
+    "home": "Home",
+    "mass": "Mass",
+    "bible": "Bible",
+    "give": "Give",
+    "profile": "Profile"
+  },
+  "drawer": {
+    "announcements": "Announcements",
+    "community": "Community",
+    "childrens_fund": "Children's Fund",
+    "explore": "Explore",
+    "more": "More",
+    "contact_church": "Contact Church",
+    "youth_club": "Youth Club",
+    "womens_club": "Women's Club",
+    "widow_support": "Widow Support",
+    "gallery": "Gallery",
+    "jobs": "Jobs"
   }
 }

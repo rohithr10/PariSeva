@@ -4,10 +4,12 @@ import {
   StatusBar, TouchableOpacity, Switch,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { Colors } from '../../constants/colors';
 import { Spacing, Radius, Shadow } from '../../constants/spacing';
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppDispatch';
 import { selectUser, updateLanguage } from '../../store/slices/auth.slice';
+import { setAppLanguage, type AppLanguage } from '../../i18n';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
@@ -16,6 +18,7 @@ export default function SettingsScreen() {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
+  const { t, i18n } = useTranslation();
 
   const [notifMass, setNotifMass] = useState(true);
   const [notifDonations, setNotifDonations] = useState(true);
@@ -23,10 +26,11 @@ export default function SettingsScreen() {
   const [notifCertificates, setNotifCertificates] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
-  const currentLang = user?.preferences.language ?? 'en';
+  const currentLang = (i18n.language as AppLanguage) ?? 'en';
 
-  const toggleLang = (lang: 'en' | 'ta') => {
+  const toggleLang = (lang: AppLanguage) => {
     dispatch(updateLanguage(lang));
+    setAppLanguage(lang);
   };
 
   return (
@@ -37,13 +41,13 @@ export default function SettingsScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialCommunityIcons name="arrow-left" style={styles.backIcon} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerTitle}>{t('profile.settings')}</Text>
         <View style={{ width: 32 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* Language */}
-        <Text style={styles.sectionTitle}>Language</Text>
+        <Text style={styles.sectionTitle}>{t('profile.language')}</Text>
         <View style={styles.card}>
           <View style={styles.langRow}>
             <TouchableOpacity
@@ -60,13 +64,13 @@ export default function SettingsScreen() {
         </View>
 
         {/* Notifications */}
-        <Text style={styles.sectionTitle}>Notifications</Text>
+        <Text style={styles.sectionTitle}>{t('profile.notifications')}</Text>
         <View style={styles.card}>
           {[
-            { label: 'Mass Reminders', value: notifMass, setter: setNotifMass },
-            { label: 'Donation Receipts', value: notifDonations, setter: setNotifDonations },
-            { label: 'Announcements', value: notifAnnouncements, setter: setNotifAnnouncements },
-            { label: 'Certificate Updates', value: notifCertificates, setter: setNotifCertificates },
+            { label: t('profile.notification_mass'), value: notifMass, setter: setNotifMass },
+            { label: t('profile.notification_donations'), value: notifDonations, setter: setNotifDonations },
+            { label: t('profile.notification_announcements'), value: notifAnnouncements, setter: setNotifAnnouncements },
+            { label: t('profile.notification_certificates'), value: notifCertificates, setter: setNotifCertificates },
           ].map((item, i, arr) => (
             <View key={i} style={[styles.switchRow, i < arr.length - 1 && styles.switchRowBorder]}>
               <Text style={styles.switchLabel}>{item.label}</Text>
@@ -81,10 +85,10 @@ export default function SettingsScreen() {
         </View>
 
         {/* Display */}
-        <Text style={styles.sectionTitle}>Display</Text>
+        <Text style={styles.sectionTitle}>{t('profile.display')}</Text>
         <View style={styles.card}>
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Dark Mode (Bible Reader)</Text>
+            <Text style={styles.switchLabel}>{t('profile.dark_mode')}</Text>
             <Switch
               value={darkMode}
               onValueChange={setDarkMode}
@@ -95,13 +99,13 @@ export default function SettingsScreen() {
         </View>
 
         {/* Account */}
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={styles.sectionTitle}>{t('profile.account')}</Text>
         <View style={styles.card}>
           {[
-            { icon: 'lock-outline', label: 'Change Password' },
-            { icon: 'phone-outline', label: 'Update Mobile Number' },
-            { icon: 'email-outline', label: 'Update Email' },
-            { icon: 'trash-can-outline', label: 'Delete Account', danger: true },
+            { icon: 'lock-outline', label: t('profile.change_password') },
+            { icon: 'phone-outline', label: t('profile.update_mobile') },
+            { icon: 'email-outline', label: t('profile.update_email') },
+            { icon: 'trash-can-outline', label: t('profile.delete_account'), danger: true },
           ].map((item, i, arr) => (
             <TouchableOpacity
               key={i}
@@ -114,13 +118,13 @@ export default function SettingsScreen() {
         </View>
 
         {/* About */}
-        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={styles.sectionTitle}>{t('profile.about_section')}</Text>
         <View style={styles.card}>
           {[
-            { label: 'App Version', value: '1.0.0' },
-            { label: 'Privacy Policy', value: '›' },
-            { label: 'Terms of Service', value: '›' },
-            { label: 'Contact Support', value: '›' },
+            { label: t('profile.app_version'), value: '1.0.0' },
+            { label: t('profile.privacy_policy'), value: '›' },
+            { label: t('profile.terms'), value: '›' },
+            { label: t('profile.contact_support'), value: '›' },
           ].map((item, i, arr) => (
             <View key={i} style={[styles.aboutRow, i < arr.length - 1 && styles.switchRowBorder]}>
               <Text style={styles.aboutLabel}>{item.label}</Text>

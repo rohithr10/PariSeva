@@ -2,12 +2,26 @@
   "name": "PariSeva",
   "version": "0.0.1",
   "private": true,
-  "scripts": {
+   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "android-clean": "cd android && ./gradlew clean && cd ..",
+    "android-debug-apk": "cd android && ./gradlew assembleDebug",
+    "open-apk": "open ./android/app/build/outputs/apk/release/",
+    "android-apk": "cd android && ./gradlew assembleRelease && cd .. && npm run open-apk",
+    "open-aab": "open ./android/app/build/outputs/bundle/release/",
+    "android-aab": "cd android && ./gradlew bundleRelease && cd .. && npm run open-aab",
+    "android-sha-debug": "keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android",
+    "android-sha-release": "keytool -list -v -keystore my-release-key.keystore",
+    "android-keystore-debug": "keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'",
+    "android-keystore-release": "keytool -genkeypair -v -keystore release.keystore -alias your-key-alias -keyalg RSA -keysize 2048 -validity 10000",
+    "bundle": "npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "pod-install": "cd ios && arch -x86_64 pod install && cd ../",
+    "clear-watchman": "watchman watch-del-all",
+    "turbo-module": "cd android && ./gradlew clean && ./gradlew generateCodegenArtifactsFromSchema && ./gradlew assembleDebug && cd ../ && cd ios && bundle install && bundle exec pod install && cd ../"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.1.1",

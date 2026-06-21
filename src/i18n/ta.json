@@ -64,7 +64,9 @@
     "step_church_details": "திருச்சபை விவரங்கள்",
     "step_password": "கடவுச்சொல்",
     "reset_password": "கடவுச்சொல் மீட்டமை",
-    "enter_new_password": "புதிய கடவுச்சொல் உள்ளிடுங்கள்"
+    "enter_new_password": "புதிய கடவுச்சொல் உள்ளிடுங்கள்",
+    "login_subtitle": "உங்கள் குடும்ப கணக்கில் உள்நுழையவும்",
+    "password_placeholder": "கடவுச்சொல்லை உள்ளிடவும்"
   },
   "onboarding": {
     "slide1_title": "உங்கள் பங்குடன் இணைந்திருங்கள்",
@@ -97,7 +99,14 @@
     "today_feast": "இன்றைய திருவிழா",
     "view_mass_timings": "திருப்பலி நேரங்கள் பார்க்க",
     "annual_goal": "ஆண்டு இலக்கு",
-    "donation_summary": "{{year}} காணிக்கை"
+    "donation_summary": "{{year}} காணிக்கை",
+    "join": "சேர",
+    "remind": "நினைவூட்டு",
+    "see_all": "அனைத்தும்",
+    "read_more": "மேலும் வாசிக்க",
+    "give_now": "இப்போது கொடு",
+    "certificate_request": "சான்றிதழ்\nகோரிக்கை",
+    "your_parish": "உங்கள் பங்கு"
   },
   "mass": {
     "mass": "திருப்பலி",
@@ -242,6 +251,42 @@
     "logout": "வெளியேறு",
     "select_language": "மொழி தேர்ந்தெடுக்கவும்",
     "english": "English",
-    "tamil": "தமிழ் (Tamil)"
+    "tamil": "தமிழ் (Tamil)",
+    "display": "காட்சி",
+    "dark_mode": "இருண்ட பயன்முறை (வேதாகம வாசிப்பு)",
+    "account": "கணக்கு",
+    "change_password": "கடவுச்சொல் மாற்று",
+    "update_mobile": "கைபேசி எண் புதுப்பி",
+    "update_email": "மின்னஞ்சல் புதுப்பி",
+    "delete_account": "கணக்கை நீக்கு",
+    "app_version": "செயலி பதிப்பு",
+    "privacy_policy": "தனியுரிமைக் கொள்கை",
+    "contact_support": "ஆதரவு தொடர்பு",
+    "notification_mass": "திருப்பலி நினைவூட்டல்கள்",
+    "notification_donations": "காணிக்கை ரசீதுகள்",
+    "notification_announcements": "அறிவிப்புகள்",
+    "notification_certificates": "சான்றிதழ் நிலை",
+    "terms": "சேவை விதிமுறைகள்",
+    "about_section": "பற்றி"
+  },
+  "nav": {
+    "home": "முகப்பு",
+    "mass": "திருப்பலி",
+    "bible": "வேதாகமம்",
+    "give": "காணிக்கை",
+    "profile": "சுயவிவரம்"
+  },
+  "drawer": {
+    "announcements": "அறிவிப்புகள்",
+    "community": "சமூகம்",
+    "childrens_fund": "குழந்தைகள் நிதி",
+    "explore": "கண்டறிய",
+    "more": "மேலும்",
+    "contact_church": "திருச்சபையை தொடர்பு கொள்ள",
+    "youth_club": "இளைஞர் சங்கம்",
+    "womens_club": "மகளிர் சங்கம்",
+    "widow_support": "விதவை உதவி",
+    "gallery": "புகைப்படங்கள்",
+    "jobs": "வேலைவாய்ப்புகள்"
   }
 }

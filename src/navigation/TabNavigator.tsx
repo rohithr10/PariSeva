@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Routes } from '../constants/routes';
 import { Colors } from '../constants/colors';
@@ -17,6 +18,7 @@ import HomeScreen from '../screens/home/HomeScreen';
 const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator() {
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       tabBar={props => <CustomTabBar {...props} />}
@@ -27,27 +29,27 @@ export default function TabNavigator() {
       <Tab.Screen
         name={Routes.Home}
         component={HomeScreen}
-        options={{ tabBarLabel: 'Home' }}
+        options={{ tabBarLabel: t('nav.home') }}
       />
       <Tab.Screen
         name={Routes.MassTab}
         component={MassNavigator}
-        options={{ tabBarLabel: 'Mass' }}
+        options={{ tabBarLabel: t('nav.mass') }}
       />
       <Tab.Screen
         name={Routes.BibleTab}
         component={BibleNavigator}
-        options={{ tabBarLabel: 'Bible' }}
+        options={{ tabBarLabel: t('nav.bible') }}
       />
       <Tab.Screen
         name={Routes.GiveTab}
         component={DonationNavigator}
-        options={{ tabBarLabel: 'Give' }}
+        options={{ tabBarLabel: t('nav.give') }}
       />
       <Tab.Screen
         name={Routes.ProfileTab}
         component={ProfileNavigator}
-        options={{ tabBarLabel: 'Profile' }}
+        options={{ tabBarLabel: t('nav.profile') }}
       />
     </Tab.Navigator>
   );

@@ -10,6 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { BoxedIcon } from '../../components/common/AppIcon/AppIcon';
 import { Colors } from '../../constants/colors';
@@ -24,10 +25,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
 
 const QUICK_ACTIONS = [
-  { icon: 'hand-heart-outline', label: 'Give\nOffering', route: Routes.GiveTab },
-  { icon: 'church', label: 'Mass\nTimings', route: Routes.MassTab },
-  { icon: 'certificate-outline', label: 'Certificate\nRequest', route: Routes.ProfileTab },
-  { icon: 'bullhorn-outline', label: 'Club\nEvents', route: Routes.Community },
+  { icon: 'hand-heart-outline', labelKey: 'home.give_offering', route: Routes.GiveTab },
+  { icon: 'church', labelKey: 'home.mass_timings', route: Routes.MassTab },
+  { icon: 'certificate-outline', labelKey: 'home.certificate_request', route: Routes.ProfileTab },
+  { icon: 'bullhorn-outline', labelKey: 'home.club_events', route: Routes.Community },
 ];
 
 const MOCK_ANNOUNCEMENTS: Announcement[] = [
@@ -53,16 +54,17 @@ const MOCK_ANNOUNCEMENTS: Announcement[] = [
   },
 ];
 
-function getGreeting(name: string) {
+function getGreetingKey() {
   const h = new Date().getHours();
-  if (h < 12) return `Good Morning, ${name}`;
-  if (h < 17) return `Good Afternoon, ${name}`;
-  if (h < 20) return `Good Evening, ${name}`;
-  return `Good Night, ${name}`;
+  if (h < 12) return 'home.greeting_morning';
+  if (h < 17) return 'home.greeting_afternoon';
+  if (h < 20) return 'home.greeting_evening';
+  return 'home.greeting_night';
 }
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
+  const { t } = useTranslation();
   const user = useAppSelector(selectUser);
   const church = useAppSelector(selectChurch);
   const announcements = useAppSelector(selectAnnouncements);
@@ -87,8 +89,8 @@ export default function HomeScreen() {
             <MaterialCommunityIcons name="menu" size={24} color={Colors.neutral.white} />
           </TouchableOpacity>
           <View>
-            <Text style={styles.greeting}>{getGreeting(firstName)}</Text>
-            <Text style={styles.churchName}>{church?.name ?? 'Your Parish'}</Text>
+            <Text style={styles.greeting}>{t(getGreetingKey(), { name: firstName })}</Text>
+            <Text style={styles.churchName}>{church?.name ?? t('home.your_parish')}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.notifBtn}>
@@ -102,10 +104,10 @@ export default function HomeScreen() {
         {/* Live Banner */}
         <TouchableOpacity style={styles.liveBanner} onPress={() => navigation.navigate(Routes.MassTab)}>
           <View style={styles.liveDot} />
-          <Text style={styles.liveText}>LIVE NOW</Text>
+          <Text style={styles.liveText}>{t('home.live_now')}</Text>
           <Text style={styles.liveMassName}>  Sunday Holy Mass</Text>
           <View style={styles.liveJoinRow}>
-            <Text style={styles.liveJoin}>Join</Text>
+            <Text style={styles.liveJoin}>{t('home.join')}</Text>
             <MaterialCommunityIcons name="arrow-right" size={14} color={Colors.neutral.white} />
           </View>
         </TouchableOpacity>
@@ -113,12 +115,12 @@ export default function HomeScreen() {
         {/* Feast Day / Welcome Card */}
         <View style={styles.featureCard}>
           <View style={styles.featureCardInner}>
-            <Text style={styles.feastLabel}>TODAY'S FEAST DAY</Text>
+            <Text style={styles.feastLabel}>{t('home.today_feast').toUpperCase()}</Text>
             <Text style={styles.feastName}>Sacred Heart of Jesus</Text>
             <Text style={styles.feastDate}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</Text>
             <Text style={styles.feastMass}>Special Mass at 6:00 AM & 7:30 AM</Text>
             <TouchableOpacity style={styles.feastCta} onPress={() => navigation.navigate(Routes.MassTab)}>
-              <Text style={styles.feastCtaText}>View Mass Timings</Text>
+              <Text style={styles.feastCtaText}>{t('home.view_mass_timings')}</Text>
               <MaterialCommunityIcons name="arrow-right" size={15} color={Colors.accent.gold} />
             </TouchableOpacity>
           </View>
@@ -129,7 +131,7 @@ export default function HomeScreen() {
           <View style={styles.nextMassLeft}>
             <View style={styles.cardLabelRow}>
               <MaterialCommunityIcons name="clock-outline" size={14} color={Colors.neutral.gray400} />
-              <Text style={styles.nextMassLabel}>Next Mass</Text>
+              <Text style={styles.nextMassLabel}>{t('home.next_mass')}</Text>
             </View>
             <Text style={styles.nextMassTitle}>Sunday Holy Mass</Text>
             <Text style={styles.nextMassTime}>7:30 AM  ·  Main Church</Text>
@@ -137,7 +139,7 @@ export default function HomeScreen() {
           <View style={styles.nextMassRight}>
             <Text style={styles.nextMassIn}>In 45 min</Text>
             <TouchableOpacity style={styles.remindBtn}>
-              <Text style={styles.remindText}>Remind</Text>
+              <Text style={styles.remindText}>{t('home.remind')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -148,20 +150,20 @@ export default function HomeScreen() {
           onPress={() => navigation.navigate(Routes.BibleTab)}>
           <View style={styles.cardLabelRow}>
             <MaterialCommunityIcons name="book-open-page-variant-outline" size={14} color={Colors.neutral.gray400} />
-            <Text style={styles.readingLabel}>Today's Reading</Text>
+            <Text style={styles.readingLabel}>{t('home.daily_reading')}</Text>
           </View>
           <Text style={styles.readingRef}>First Reading: Isaiah 61:1–3</Text>
           <Text style={styles.readingPreview} numberOfLines={2}>
             "The Spirit of the Lord is upon me, for He has anointed me to bring Good News to the poor..."
           </Text>
           <View style={styles.readMoreRow}>
-            <Text style={styles.readMore}>Read More</Text>
+            <Text style={styles.readMore}>{t('home.read_more')}</Text>
             <MaterialCommunityIcons name="arrow-right" size={15} color={Colors.sky.blue} />
           </View>
         </TouchableOpacity>
 
         {/* Quick Actions */}
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <Text style={styles.sectionTitle}>{t('home.quick_actions')}</Text>
         <View style={styles.actionsGrid}>
           {QUICK_ACTIONS.map((action, i) => (
             <TouchableOpacity
@@ -176,16 +178,16 @@ export default function HomeScreen() {
                 background={Colors.accent.goldPale}
                 style={styles.actionIcon}
               />
-              <Text style={styles.actionLabel}>{action.label}</Text>
+              <Text style={styles.actionLabel}>{t(action.labelKey)}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Announcements */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Announcements</Text>
+          <Text style={styles.sectionTitle}>{t('home.announcements')}</Text>
           <TouchableOpacity>
-            <Text style={styles.seeAll}>See All</Text>
+            <Text style={styles.seeAll}>{t('home.see_all')}</Text>
           </TouchableOpacity>
         </View>
         {displayAnnouncements.slice(0, 3).map(ann => (
@@ -202,20 +204,20 @@ export default function HomeScreen() {
         <View style={styles.donationCard}>
           <View style={styles.donationRow}>
             <View>
-              <Text style={styles.donationLabel}>Your Giving — {new Date().getFullYear()}</Text>
+              <Text style={styles.donationLabel}>{t('home.donation_summary', { year: new Date().getFullYear() })}</Text>
               <Text style={styles.donationAmount}>₹4,200</Text>
             </View>
             <TouchableOpacity
               style={styles.giveBtn}
               onPress={() => navigation.navigate(Routes.GiveTab)}>
-              <Text style={styles.giveBtnText}>Give Now</Text>
+              <Text style={styles.giveBtnText}>{t('home.give_now')}</Text>
               <MaterialCommunityIcons name="arrow-right" size={16} color={Colors.neutral.white} />
             </TouchableOpacity>
           </View>
           <View style={styles.progressBg}>
             <View style={[styles.progressFill, { width: '42%' }]} />
           </View>
-          <Text style={styles.progressLabel}>Annual Goal: ₹9,999</Text>
+          <Text style={styles.progressLabel}>{t('home.annual_goal')}: ₹9,999</Text>
         </View>
 
         <View style={{ height: 24 }} />
