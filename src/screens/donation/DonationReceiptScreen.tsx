@@ -21,7 +21,7 @@ export default function DonationReceiptScreen({ navigation, route }: Props) {
 
   const shareReceipt = async () => {
     await Share.share({
-      message: `PariSeva Donation Receipt\n\nReceipt #: ${donationId}\nDate: ${date}\nType: ${type}\nAmount: ₹${amount}\n\nThank you for your generous offering to St. Mary's Basilica.\n\nGod bless you!`,
+      message: `My Holy Nest Donation Receipt\n\nReceipt #: ${donationId}\nDate: ${date}\nType: ${type}\nAmount: ₹${amount}\n\nThank you for your generous offering to St. Mary's Basilica.\n\nGod bless you!`,
     });
   };
 

@@ -15,6 +15,8 @@ import { Spacing, Radius } from '../../constants/spacing';
 import { Routes } from '../../constants/routes';
 import Input from '../../components/common/Input/Input';
 import Button from '../../components/common/Button/Button';
+import { authApi } from '../../api/auth.api';
+import { getApiErrorMessage } from '../../api/client';
 import type { AuthStackParamList } from '../../navigation/types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,6 +30,7 @@ export default function RegisterScreen({ navigation, route }: Props) {
   const church = route.params?.church;
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const [form, setForm] = useState({
     firstName: '',
@@ -51,10 +54,30 @@ export default function RegisterScreen({ navigation, route }: Props) {
   };
 
   const handleRegister = async () => {
+    if (!church?._id) {
+      setSubmitError('Please select your church first.');
+      return;
+    }
     setLoading(true);
-    await new Promise<void>(r => setTimeout(r, 1000));
-    navigation.navigate(Routes.OTPVerification, { phone: form.phone, purpose: 'register' });
-    setLoading(false);
+    setSubmitError('');
+    try {
+      await authApi.register({
+        phone: form.phone,
+        password: form.password,
+        familyName: form.familyName,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email || undefined,
+        churchId: church._id,
+        address: { street: form.address, city: form.city, pincode: form.pincode },
+      });
+      // Account created (unverified). Verify via OTP to finish + log in.
+      navigation.navigate(Routes.OTPVerification, { phone: form.phone, purpose: 'register' });
+    } catch (err) {
+      setSubmitError(getApiErrorMessage(err, 'Registration failed. Please try again.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -147,6 +170,8 @@ export default function RegisterScreen({ navigation, route }: Props) {
             </View>
           )}
 
+          {submitError ? <Text style={styles.submitError}>{submitError}</Text> : null}
+
           <Button
             title={step < STEPS.length - 1 ? 'Next' : 'Create Account'}
             onPress={nextStep}
@@ -217,6 +242,12 @@ const styles = StyleSheet.create({
   churchSelectedName: { fontSize: 14, fontWeight: '600', color: Colors.primary.navy },
   termsText: { fontSize: 13, color: Colors.neutral.gray500, lineHeight: 20, marginBottom: Spacing.lg },
   termsLink: { color: Colors.sky.blue },
+  submitError: {
+    color: Colors.semantic.error,
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
+  },
   ctaBtn: { marginTop: Spacing.lg },
   loginRow: { flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.lg },
   loginText: { color: Colors.neutral.gray500, fontSize: 14 },

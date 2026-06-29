@@ -42,7 +42,7 @@ export default function SplashScreen({ navigation }: Props) {
           <View style={styles.crossVertical} />
           <View style={styles.crossHorizontal} />
         </View>
-        <Text style={styles.appName}>PariSeva</Text>
+        <Text style={styles.appName}>My Holy Nest</Text>
         <Text style={styles.tagline}>Your Parish. Your Family. Your Faith.</Text>
         <Text style={styles.taglineTA}>உங்கள் பங்கு. உங்கள் குடும்பம். உங்கள் நம்பிக்கை.</Text>
       </Animated.View>

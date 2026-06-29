@@ -8,7 +8,20 @@ export interface CreateOrderPayload {
   isAnonymous?: boolean;
 }
 
+export interface CreatedOrder {
+  donationId: string;
+  order: {
+    id: string;
+    amount: number; // paise
+    currency: string;
+    receipt: string;
+    status: string;
+    keyId: string;
+  };
+}
+
 export interface VerifyPaymentPayload {
+  donationId: string;
   orderId: string;
   paymentId: string;
   signature: string;
@@ -16,22 +29,19 @@ export interface VerifyPaymentPayload {
 
 export const donationApi = {
   createOrder: (payload: CreateOrderPayload) =>
-    apiClient.post<ApiResponse<{ orderId: string; amount: number; currency: string; key: string }>>(
-      '/donations/order', payload,
-    ),
+    apiClient.post<ApiResponse<CreatedOrder>>('/donations/order', payload),
 
   verifyPayment: (payload: VerifyPaymentPayload) =>
     apiClient.post<ApiResponse<Donation>>('/donations/verify', payload),
 
   getHistory: (page = 1, limit = 20) =>
-    apiClient.get<ApiResponse<Donation[]>>('/donations/history', { params: { page, limit } }),
+    apiClient.get<ApiResponse<Donation[]>>('/donations/me', { params: { page, limit } }),
 
   getSummary: (year: number) =>
     apiClient.get<ApiResponse<DonationSummary>>('/donations/summary', { params: { year } }),
 
   getReceipt: (donationId: string) =>
-    apiClient.get(`/donations/${donationId}/receipt`, { responseType: 'blob' }),
-
-  createSubscription: (plan: 'monthly' | 'yearly') =>
-    apiClient.post('/subscriptions', { plan }),
+    apiClient.get<ApiResponse<{ receiptNumber: string; amount: number; currency: string; type: OfferingType; date: string; receiptUrl?: string }>>(
+      `/donations/${donationId}/receipt`,
+    ),
 };

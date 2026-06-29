@@ -1,53 +1,55 @@
 import apiClient from './client';
-import type { ApiResponse, MassTiming, Announcement, CertificateRequest, TransferRequest, Donation } from '../types';
+import type {
+  ApiResponse,
+  MassTiming,
+  Announcement,
+  CertificateRequest,
+  TransferRequest,
+} from '../types';
 
+/**
+ * Admin actions are role-guarded on the resource routes themselves
+ * (not a separate /admin namespace). The backend authorises staff roles
+ * via the JWT, so these hit the same endpoints with admin privileges.
+ */
 export const adminApi = {
-  getDashboard: () =>
-    apiClient.get('/admin/dashboard'),
-
-  // Mass
-  addMassTiming: (data: Omit<MassTiming, '_id'>) =>
-    apiClient.post<ApiResponse<MassTiming>>('/admin/mass-timings', data),
+  // ── Mass timings ──
+  addMassTiming: (data: Partial<MassTiming>) =>
+    apiClient.post<ApiResponse<MassTiming>>('/mass/timings', data),
 
   updateMassTiming: (id: string, data: Partial<MassTiming>) =>
-    apiClient.put<ApiResponse<MassTiming>>(`/admin/mass-timings/${id}`, data),
+    apiClient.patch<ApiResponse<MassTiming>>(`/mass/timings/${id}`, data),
 
-  deleteMassTiming: (id: string) =>
-    apiClient.delete(`/admin/mass-timings/${id}`),
+  deleteMassTiming: (id: string) => apiClient.delete(`/mass/timings/${id}`),
 
-  // Families
-  getFamilies: (page = 1, search?: string) =>
-    apiClient.get('/admin/families', { params: { page, search } }),
+  // ── Certificates queue ──
+  getPendingCertificates: (status = 'pending') =>
+    apiClient.get<ApiResponse<CertificateRequest[]>>('/certificates', { params: { status } }),
 
-  // Donations
-  getDonations: (params?: { page?: number; type?: string; from?: string; to?: string }) =>
-    apiClient.get<ApiResponse<Donation[]>>('/admin/donations', { params }),
+  updateCertificate: (
+    id: string,
+    payload: {
+      status: 'under_review' | 'approved' | 'rejected' | 'ready';
+      certificateUrl?: string;
+      certificateNumber?: string;
+      rejectionReason?: string;
+    },
+  ) => apiClient.patch<ApiResponse<CertificateRequest>>(`/certificates/${id}/status`, payload),
 
-  exportDonationsReport: (year: number) =>
-    apiClient.get(`/admin/donations/report?year=${year}`, { responseType: 'blob' }),
+  // ── Transfers queue ──
+  getTransfers: () => apiClient.get<ApiResponse<TransferRequest[]>>('/transfers'),
 
-  // Certificates
-  getPendingCertificates: () =>
-    apiClient.get<ApiResponse<CertificateRequest[]>>('/admin/certificates/pending'),
+  updateTransfer: (
+    id: string,
+    payload: {
+      status: 'approved_source' | 'pending_destination' | 'completed' | 'rejected';
+      rejectionReason?: string;
+    },
+  ) => apiClient.patch(`/transfers/${id}/status`, payload),
 
-  approveCertificate: (id: string) =>
-    apiClient.put(`/admin/certificates/${id}/approve`),
-
-  rejectCertificate: (id: string, reason: string) =>
-    apiClient.put(`/admin/certificates/${id}/reject`, { reason }),
-
-  // Transfers
-  getPendingTransfers: () =>
-    apiClient.get<ApiResponse<TransferRequest[]>>('/admin/transfers/pending'),
-
-  updateTransfer: (id: string, action: 'approve' | 'reject', notes?: string) =>
-    apiClient.put(`/admin/transfers/${id}`, { action, notes }),
-
-  // Announcements
+  // ── Announcements ──
   postAnnouncement: (data: Omit<Announcement, '_id' | 'publishedAt'>) =>
-    apiClient.post<ApiResponse<Announcement>>('/admin/announcements', data),
+    apiClient.post<ApiResponse<Announcement>>('/announcements', data),
 
-  // Broadcast
-  sendBroadcast: (title: string, body: string, audience: string) =>
-    apiClient.post('/admin/notifications/broadcast', { title, body, audience }),
+  deleteAnnouncement: (id: string) => apiClient.delete(`/announcements/${id}`),
 };

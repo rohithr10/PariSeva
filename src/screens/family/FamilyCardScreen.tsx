@@ -32,7 +32,7 @@ export default function FamilyCardScreen() {
 
   const shareCard = async () => {
     await Share.share({
-      message: `PariSeva Family ID: ${family.id}\n${family.name}\n${church?.name ?? 'St. Mary\'s Basilica'}\n\nDownload PariSeva for more.`,
+      message: `My Holy Nest Family ID: ${family.id}\n${family.name}\n${church?.name ?? 'St. Mary\'s Basilica'}\n\nDownload My Holy Nest for more.`,
     });
   };
 

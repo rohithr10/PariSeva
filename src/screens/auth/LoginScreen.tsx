@@ -19,8 +19,9 @@ import Input from '../../components/common/Input/Input';
 import Button from '../../components/common/Button/Button';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { setCredentials } from '../../store/slices/auth.slice';
+import { authApi } from '../../api/auth.api';
+import { getApiErrorMessage } from '../../api/client';
 import type { AuthStackParamList } from '../../navigation/types';
-import type { User } from '../../types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
@@ -51,22 +52,14 @@ export default function LoginScreen({ navigation, route }: Props) {
   const handleLogin = async () => {
     if (!validate()) return;
     setLoading(true);
+    setErrors({});
     try {
-      // Mock login — replace with authApi.login()
-      await new Promise<void>(r => setTimeout(r, 1000));
-      const mockUser: User = {
-        _id: 'u1',
-        phone,
-        role: 'family_head',
-        churchId: church?._id ?? 'c1',
-        dioceseId: 'd1',
-        profile: { firstName: 'Thomas', lastName: 'Raj' },
-        preferences: { language: 'en', notifications: { mass: true, donations: true, announcements: true, certificates: true } },
-        isVerified: true,
-      };
-      dispatch(setCredentials({ user: mockUser, token: 'mock_token', refreshToken: 'mock_refresh' }));
-    } catch {
-      setErrors({ password: 'Invalid credentials. Please try again.' });
+      const res = await authApi.login({ phone, password });
+      const { user, token, refreshToken } = res.data.data;
+      dispatch(setCredentials({ user, token, refreshToken }));
+      // RootNavigator switches stacks automatically once authenticated.
+    } catch (err) {
+      setErrors({ password: getApiErrorMessage(err, 'Invalid phone number or password') });
     } finally {
       setLoading(false);
     }

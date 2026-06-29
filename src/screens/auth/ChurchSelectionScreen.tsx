@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Colors } from '../../constants/colors';
@@ -14,6 +15,7 @@ import { Spacing, Radius, Shadow } from '../../constants/spacing';
 import { Routes } from '../../constants/routes';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { setChurch } from '../../store/slices/auth.slice';
+import { churchApi } from '../../api/church.api';
 import type { AuthStackParamList } from '../../navigation/types';
 import type { Church } from '../../types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -60,12 +62,41 @@ type Props = NativeStackScreenProps<AuthStackParamList, typeof Routes.ChurchSele
 export default function ChurchSelectionScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const [search, setSearch] = useState('');
+  const [churches, setChurches] = useState<Church[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = MOCK_CHURCHES.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.address.area?.toLowerCase().includes(search.toLowerCase()) ||
-    c.address.city.toLowerCase().includes(search.toLowerCase()),
-  );
+  // Fetch from the API, debounced on the search term. Falls back to mock data
+  // if the backend is unreachable so the flow still works offline.
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    const handle = setTimeout(async () => {
+      try {
+        const res = await churchApi.search(search.trim());
+        if (!active) return;
+        setChurches(res.data.data);
+      } catch {
+        if (!active) return;
+        const q = search.toLowerCase();
+        setChurches(
+          MOCK_CHURCHES.filter(
+            c =>
+              c.name.toLowerCase().includes(q) ||
+              c.address.area?.toLowerCase().includes(q) ||
+              c.address.city.toLowerCase().includes(q),
+          ),
+        );
+      } finally {
+        if (active) setLoading(false);
+      }
+    }, 350);
+    return () => {
+      active = false;
+      clearTimeout(handle);
+    };
+  }, [search]);
+
+  const filtered = churches;
 
   const selectChurchHandler = (church: Church) => {
     dispatch(setChurch(church));
@@ -120,17 +151,23 @@ export default function ChurchSelectionScreen({ navigation }: Props) {
       </View>
 
       {/* List */}
-      <FlatList
-        data={filtered}
-        keyExtractor={item => item._id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.list}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>No churches found</Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.empty}>
+          <ActivityIndicator size="large" color={Colors.accent.gold} />
+        </View>
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={item => item._id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>No churches found</Text>
+            </View>
+          }
+        />
+      )}
 
       {/* Footer */}
       <View style={styles.footer}>

@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import en from './en.json';
 import ta from './ta.json';
 
-const LANG_STORAGE_KEY = '@pariseva/language';
+const LANG_STORAGE_KEY = '@myholynest/language';
 
 export type AppLanguage = 'en' | 'ta';
 

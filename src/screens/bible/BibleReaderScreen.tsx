@@ -42,7 +42,7 @@ export default function BibleReaderScreen({ navigation, route }: Props) {
 
   const shareVerse = async (v: typeof MOCK_VERSES[0]) => {
     await Share.share({
-      message: `${book} ${currentChapter}:${v.verse}\n\n"${v.text}"\n\n— Shared via PariSeva`,
+      message: `${book} ${currentChapter}:${v.verse}\n\n"${v.text}"\n\n— Shared via My Holy Nest`,
     });
   };
 

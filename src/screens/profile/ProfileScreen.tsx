@@ -117,7 +117,7 @@ export default function ProfileScreen() {
           <Text style={styles.logoutText}><MaterialCommunityIcons name="logout" size={15} /> Logout</Text>
         </TouchableOpacity>
 
-        <Text style={styles.version}>PariSeva v1.0.0</Text>
+        <Text style={styles.version}>My Holy Nest v1.0.0</Text>
         <View style={{ height: 32 }} />
       </ScrollView>
     </SafeAreaView>

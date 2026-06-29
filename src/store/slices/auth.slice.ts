@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { User, Church } from '../../types';
 
 interface AuthState {
@@ -7,6 +7,8 @@ interface AuthState {
   refreshToken: string | null;
   church: Church | null;
   isAuthenticated: boolean;
+  /** false until the persisted session has been read from storage on launch */
+  bootstrapped: boolean;
   loading: boolean;
   error: string | null;
 }
@@ -17,6 +19,7 @@ const initialState: AuthState = {
   refreshToken: null,
   church: null,
   isAuthenticated: false,
+  bootstrapped: false,
   loading: false,
   error: null,
 };
@@ -37,6 +40,34 @@ const authSlice = createSlice({
     },
     setChurch: (state, action: PayloadAction<Church>) => {
       state.church = action.payload;
+    },
+    // Rehydrate auth from persisted storage on app launch.
+    hydrate: (
+      state,
+      action: PayloadAction<{
+        user: User | null;
+        token: string | null;
+        refreshToken: string | null;
+        church: Church | null;
+      }>,
+    ) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
+      state.church = action.payload.church;
+      state.isAuthenticated = !!action.payload.token;
+      state.bootstrapped = true;
+    },
+    setBootstrapped: state => {
+      state.bootstrapped = true;
+    },
+    // Update tokens after a silent refresh.
+    setTokens: (
+      state,
+      action: PayloadAction<{ token: string; refreshToken?: string }>,
+    ) => {
+      state.token = action.payload.token;
+      if (action.payload.refreshToken) state.refreshToken = action.payload.refreshToken;
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
@@ -68,6 +99,9 @@ const authSlice = createSlice({
 export const {
   setCredentials,
   setChurch,
+  hydrate,
+  setBootstrapped,
+  setTokens,
   updateUser,
   updateLanguage,
   setLoading,
@@ -82,6 +116,7 @@ export const selectChurch = (state: { auth: AuthState }) => state.auth.church;
 export const selectIsAuthenticated = (state: { auth: AuthState }) =>
   state.auth.isAuthenticated;
 export const selectUserRole = (state: { auth: AuthState }) => state.auth.user?.role;
+export const selectBootstrapped = (state: { auth: AuthState }) => state.auth.bootstrapped;
 export const selectLanguage = (state: { auth: AuthState }) =>
   state.auth.user?.preferences?.language ?? 'en';
 

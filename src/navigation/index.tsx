@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { useAppSelector } from '../hooks/useAppDispatch';
-import { selectIsAuthenticated, selectUserRole } from '../store/slices/auth.slice';
+import {
+  selectIsAuthenticated,
+  selectUserRole,
+  selectBootstrapped,
+} from '../store/slices/auth.slice';
+import { bootstrapSession } from '../store/bootstrap';
+import { Colors } from '../constants/colors';
 import AuthNavigator from './AuthNavigator';
 import DrawerNavigator from './DrawerNavigator';
 import AdminNavigator from './AdminNavigator';
@@ -9,8 +16,21 @@ import AdminNavigator from './AdminNavigator';
 const ADMIN_ROLES = ['super_admin', 'diocese_admin', 'church_admin', 'priest', 'pa'];
 
 export default function RootNavigator() {
+  const bootstrapped = useAppSelector(selectBootstrapped);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const role = useAppSelector(selectUserRole);
+
+  useEffect(() => {
+    bootstrapSession();
+  }, []);
+
+  if (!bootstrapped) {
+    return (
+      <View style={styles.splash}>
+        <ActivityIndicator size="large" color={Colors.accent.gold} />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -24,3 +44,12 @@ export default function RootNavigator() {
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  splash: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary.navyDark,
+  },
+});

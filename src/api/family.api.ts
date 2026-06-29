@@ -2,30 +2,32 @@ import apiClient from './client';
 import type { ApiResponse, Family, FamilyMember, CertificateRequest, CertType } from '../types';
 
 export const familyApi = {
-  getMyCard: () =>
-    apiClient.get<ApiResponse<Family>>('/family/card'),
+  getMyCard: () => apiClient.get<ApiResponse<Family>>('/families/me'),
 
-  updateCard: (data: Partial<Family>) =>
-    apiClient.put<ApiResponse<Family>>('/family/card', data),
-
-  getMembers: () =>
-    apiClient.get<ApiResponse<FamilyMember[]>>('/family/members'),
-
-  addMember: (member: Omit<FamilyMember, '_id' | 'familyId'>) =>
-    apiClient.post<ApiResponse<FamilyMember>>('/family/members', member),
+  addMember: (member: Omit<FamilyMember, '_id' | 'familyId' | 'sacraments'>) =>
+    apiClient.post<ApiResponse<Family>>('/families/me/members', member),
 
   updateMember: (memberId: string, data: Partial<FamilyMember>) =>
-    apiClient.put<ApiResponse<FamilyMember>>(`/family/members/${memberId}`, data),
+    apiClient.patch<ApiResponse<Family>>(`/families/me/members/${memberId}`, data),
 
+  removeMember: (memberId: string) =>
+    apiClient.delete<ApiResponse<Family>>(`/families/me/members/${memberId}`),
+
+  // Certificates
   getCertificates: () =>
-    apiClient.get<ApiResponse<CertificateRequest[]>>('/certificates'),
+    apiClient.get<ApiResponse<CertificateRequest[]>>('/certificates/me'),
 
-  requestCertificate: (payload: { memberId: string; type: CertType; purpose: string; additionalInfo?: object }) =>
-    apiClient.post<ApiResponse<CertificateRequest>>('/certificates/request', payload),
+  requestCertificate: (payload: {
+    memberId?: string;
+    memberName: string;
+    type: CertType;
+    purpose: string;
+    familyId?: string;
+  }) => apiClient.post<ApiResponse<CertificateRequest>>('/certificates', payload),
 
-  downloadCertificate: (certId: string) =>
-    apiClient.get(`/certificates/${certId}/download`, { responseType: 'blob' }),
+  // Church transfer
+  requestTransfer: (payload: { destinationChurchId: string; reason?: string }) =>
+    apiClient.post('/transfers', payload),
 
-  requestTransfer: (payload: { destinationChurchId: string; reason: string }) =>
-    apiClient.post('/family/transfer', payload),
+  getMyTransfers: () => apiClient.get('/transfers/me'),
 };

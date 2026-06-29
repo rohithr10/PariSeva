@@ -1,6 +1,6 @@
 {
   "common": {
-    "app_name": "PariSeva",
+    "app_name": "My Holy Nest",
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Try Again",
@@ -23,7 +23,7 @@
     "or": "or"
   },
   "auth": {
-    "welcome": "Welcome to PariSeva",
+    "welcome": "Welcome to My Holy Nest",
     "tagline": "Your Parish. Your Family. Your Faith.",
     "select_church": "Select Your Church",
     "select_church_hint": "Search for your parish to get started",
@@ -38,7 +38,7 @@
     "confirm_password": "Confirm Password",
     "forgot_password": "Forgot Password?",
     "login_with_otp": "Login with OTP",
-    "new_user": "New to PariSeva?",
+    "new_user": "New to My Holy Nest?",
     "already_member": "Already have an account?",
     "otp_sent": "OTP Sent",
     "otp_hint": "Enter the 6-digit code sent to",
@@ -320,7 +320,7 @@
     "language": "Language",
     "notifications": "Notifications",
     "privacy": "Privacy & Security",
-    "about": "About PariSeva",
+    "about": "About My Holy Nest",
     "help": "Help & Support",
     "terms": "Terms of Service",
     "logout": "Logout",

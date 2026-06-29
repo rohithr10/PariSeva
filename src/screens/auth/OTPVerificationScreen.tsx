@@ -17,8 +17,9 @@ import { Routes } from '../../constants/routes';
 import Button from '../../components/common/Button/Button';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { setCredentials } from '../../store/slices/auth.slice';
+import { authApi } from '../../api/auth.api';
+import { getApiErrorMessage } from '../../api/client';
 import type { AuthStackParamList } from '../../navigation/types';
-import type { User } from '../../types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
@@ -76,34 +77,33 @@ export default function OTPVerificationScreen({ navigation, route }: Props) {
       return;
     }
     setLoading(true);
+    setError('');
     try {
-      await new Promise<void>(r => setTimeout(r, 1000));
-      // Mock success — replace with API
-      if (purpose === 'register' || purpose === 'login') {
-        const mockUser: User = {
-          _id: 'u1',
-          phone,
-          role: 'family_head',
-          churchId: 'c1',
-          dioceseId: 'd1',
-          profile: { firstName: 'Thomas', lastName: 'Raj' },
-          preferences: { language: 'en', notifications: { mass: true, donations: true, announcements: true, certificates: true } },
-          isVerified: true,
-        };
-        dispatch(setCredentials({ user: mockUser, token: 'mock_token', refreshToken: 'mock_refresh' }));
-      }
-    } catch {
-      setError('Invalid OTP. Please try again.');
+      // Registration uses verify-account; OTP login uses verify-otp.
+      const res =
+        purpose === 'register'
+          ? await authApi.verifyAccount({ phone, otp: code })
+          : await authApi.verifyOTP({ phone, otp: code });
+      const { user, token, refreshToken } = res.data.data;
+      dispatch(setCredentials({ user, token, refreshToken }));
+      // RootNavigator switches to the authenticated stack automatically.
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Invalid OTP. Please try again.'));
       shake();
     } finally {
       setLoading(false);
     }
   };
 
-  const resendOtp = () => {
+  const resendOtp = async () => {
     setTimer(60);
     setOtp(new Array(OTP_LENGTH).fill(''));
     inputRefs.current[0]?.focus();
+    try {
+      await authApi.sendOTP(phone, purpose === 'register' ? 'verify' : 'login');
+    } catch {
+      /* timer already reset; surface nothing intrusive */
+    }
   };
 
   return (
