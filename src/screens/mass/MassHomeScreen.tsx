@@ -1,29 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BoxedIcon } from '../../components/common/AppIcon/AppIcon';
-import { Colors } from '../../constants/colors';
-import { Spacing, Radius, Shadow } from '../../constants/spacing';
-import { Routes } from '../../constants/routes';
-import Badge from '../../components/common/Badge/Badge';
-import type { MassTiming } from '../../types';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  StatusBar,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { BoxedIcon } from "../../components/common/AppIcon/AppIcon";
+import { Colors } from "../../constants/colors";
+import { Spacing, Radius, Shadow } from "../../constants/spacing";
+import { Routes } from "../../constants/routes";
+import Badge from "../../components/common/Badge/Badge";
+import type { MassTiming } from "../../types";
+import { SafeAreaView } from "react-native-safe-area-context";
+import TopSafeArea from "../../components/common/TopSafeArea/TopSafeArea";
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const MOCK_TIMINGS: MassTiming[] = [
-  { _id: '1', churchId: 'c1', title: 'Tamil Mass', titleTA: 'தமிழ் திருப்பலி', dayOfWeek: [0], time: '06:00', language: 'ta', venue: 'Main Church', priest: 'Fr. Thomas Raj', massType: 'regular', isActive: true },
-  { _id: '2', churchId: 'c1', title: 'English Mass', titleTA: 'ஆங்கில திருப்பலி', dayOfWeek: [0], time: '07:30', language: 'en', venue: 'Main Church', priest: 'Fr. Anthony Samy', massType: 'regular', isActive: true },
-  { _id: '3', churchId: 'c1', title: 'Morning Mass', titleTA: 'காலை திருப்பலி', dayOfWeek: [1, 2, 3, 4, 5, 6], time: '06:30', language: 'both', venue: 'Chapel', priest: 'Fr. Joseph', massType: 'regular', isActive: true },
-  { _id: '4', churchId: 'c1', title: 'Evening Mass', titleTA: 'மாலை திருப்பலி', dayOfWeek: [1, 2, 3, 4, 5, 6], time: '18:30', language: 'both', venue: 'Main Church', priest: 'Fr. Thomas Raj', massType: 'regular', isActive: true },
+  {
+    _id: "1",
+    churchId: "c1",
+    title: "Tamil Mass",
+    titleTA: "தமிழ் திருப்பலி",
+    dayOfWeek: [0],
+    time: "06:00",
+    language: "ta",
+    venue: "Main Church",
+    priest: "Fr. Thomas Raj",
+    massType: "regular",
+    isActive: true,
+  },
+  {
+    _id: "2",
+    churchId: "c1",
+    title: "English Mass",
+    titleTA: "ஆங்கில திருப்பலி",
+    dayOfWeek: [0],
+    time: "07:30",
+    language: "en",
+    venue: "Main Church",
+    priest: "Fr. Anthony Samy",
+    massType: "regular",
+    isActive: true,
+  },
+  {
+    _id: "3",
+    churchId: "c1",
+    title: "Morning Mass",
+    titleTA: "காலை திருப்பலி",
+    dayOfWeek: [1, 2, 3, 4, 5, 6],
+    time: "06:30",
+    language: "both",
+    venue: "Chapel",
+    priest: "Fr. Joseph",
+    massType: "regular",
+    isActive: true,
+  },
+  {
+    _id: "4",
+    churchId: "c1",
+    title: "Evening Mass",
+    titleTA: "மாலை திருப்பலி",
+    dayOfWeek: [1, 2, 3, 4, 5, 6],
+    time: "18:30",
+    language: "both",
+    venue: "Main Church",
+    priest: "Fr. Thomas Raj",
+    massType: "regular",
+    isActive: true,
+  },
 ];
 
 const SPECIAL: MassTiming[] = [
-  { _id: 's1', churchId: 'c1', title: 'Sacred Heart Feast Mass', titleTA: 'திருவிழா திருப்பலி', specificDate: '2026-06-19', time: '06:00', language: 'both', venue: 'Main Church', priest: 'Bishop Joseph', massType: 'feast', isActive: true },
+  {
+    _id: "s1",
+    churchId: "c1",
+    title: "Sacred Heart Feast Mass",
+    titleTA: "திருவிழா திருப்பலி",
+    specificDate: "2026-06-19",
+    time: "06:00",
+    language: "both",
+    venue: "Main Church",
+    priest: "Bishop Joseph",
+    massType: "feast",
+    isActive: true,
+  },
 ];
 
 export default function MassHomeScreen() {
@@ -31,12 +96,17 @@ export default function MassHomeScreen() {
   const today = new Date().getDay();
   const [selectedDay, setSelectedDay] = useState(today);
 
-  const todayTimings = MOCK_TIMINGS.filter(m => m.dayOfWeek?.includes(selectedDay));
+  const todayTimings = MOCK_TIMINGS.filter((m) =>
+    m.dayOfWeek?.includes(selectedDay),
+  );
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right']}>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <TopSafeArea color={Colors.primary.navy} />
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary.navyDark} />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={Colors.primary.navyDark}
+      />
 
       {/* Header */}
       <View style={styles.header}>
@@ -48,7 +118,13 @@ export default function MassHomeScreen() {
         {/* Live Now Banner */}
         <TouchableOpacity
           style={styles.liveBanner}
-          onPress={() => navigation.navigate(Routes.LiveMass, { videoId: 'dQw4w9WgXcQ', title: 'Sunday Holy Mass' })}>
+          onPress={() =>
+            navigation.navigate(Routes.LiveMass, {
+              videoId: "dQw4w9WgXcQ",
+              title: "Sunday Holy Mass",
+            })
+          }
+        >
           <View>
             <View style={styles.liveRow}>
               <View style={styles.livePulse} />
@@ -56,17 +132,30 @@ export default function MassHomeScreen() {
             </View>
             <Text style={styles.liveMassName}>Sunday Holy Mass</Text>
             <View style={styles.liveWatchingRow}>
-              <MaterialCommunityIcons name="eye-outline" size={14} color={Colors.sky.blueLight} />
+              <MaterialCommunityIcons
+                name="eye-outline"
+                size={14}
+                color={Colors.sky.blueLight}
+              />
               <Text style={styles.liveWatching}>432 watching</Text>
             </View>
           </View>
           <View style={styles.livePlayBtn}>
-            <MaterialCommunityIcons name="play" size={26} color={Colors.neutral.white} />
+            <MaterialCommunityIcons
+              name="play"
+              size={26}
+              color={Colors.neutral.white}
+            />
           </View>
         </TouchableOpacity>
 
         {/* Day Selector */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dayScrollOuter} contentContainerStyle={styles.dayScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.dayScrollOuter}
+          contentContainerStyle={styles.dayScroll}
+        >
           {DAYS.map((day, i) => {
             const isToday = i === today;
             const isSelected = i === selectedDay;
@@ -74,8 +163,13 @@ export default function MassHomeScreen() {
               <TouchableOpacity
                 key={i}
                 style={[styles.dayPill, isSelected && styles.dayPillActive]}
-                onPress={() => setSelectedDay(i)}>
-                <Text style={[styles.dayText, isSelected && styles.dayTextActive]}>{day}</Text>
+                onPress={() => setSelectedDay(i)}
+              >
+                <Text
+                  style={[styles.dayText, isSelected && styles.dayTextActive]}
+                >
+                  {day}
+                </Text>
                 {isToday && <View style={styles.todayDot} />}
               </TouchableOpacity>
             );
@@ -85,36 +179,53 @@ export default function MassHomeScreen() {
         {/* Mass Timings */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {selectedDay === today ? 'Today' : DAYS[selectedDay]} — Mass Schedule
+            {selectedDay === today ? "Today" : DAYS[selectedDay]} — Mass
+            Schedule
           </Text>
           {todayTimings.length === 0 ? (
             <View style={styles.noMass}>
               <Text style={styles.noMassText}>No mass scheduled</Text>
             </View>
           ) : (
-            todayTimings.map(mass => (
+            todayTimings.map((mass) => (
               <View key={mass._id} style={styles.massCard}>
                 <View style={styles.massTimeCol}>
                   <Text style={styles.massTime}>{mass.time}</Text>
-                  <Text style={styles.massMeridiem}>{parseInt(mass.time) < 12 ? 'AM' : 'PM'}</Text>
+                  <Text style={styles.massMeridiem}>
+                    {parseInt(mass.time) < 12 ? "AM" : "PM"}
+                  </Text>
                 </View>
                 <View style={styles.massInfo}>
                   <Text style={styles.massTitle}>{mass.title}</Text>
                   <Text style={styles.massTitleTA}>{mass.titleTA}</Text>
-                  <Text style={styles.massPriest}>Fr. {mass.priest?.replace('Fr. ', '')}</Text>
+                  {/* <Text style={styles.massPriest}>Fr. {mass.priest?.replace('Fr. ', '')}</Text> */}
                   <View style={styles.venueRow}>
-                    <MaterialCommunityIcons name="map-marker-outline" size={13} color={Colors.neutral.gray400} />
+                    <MaterialCommunityIcons
+                      name="map-marker-outline"
+                      size={13}
+                      color={Colors.neutral.gray400}
+                    />
                     <Text style={styles.massVenue}>{mass.venue}</Text>
                   </View>
                 </View>
                 <View style={styles.massActions}>
                   <Badge
-                    label={mass.language === 'ta' ? 'Tamil' : mass.language === 'en' ? 'English' : 'Both'}
-                    variant={mass.language === 'ta' ? 'navy' : 'gold'}
+                    label={
+                      mass.language === "ta"
+                        ? "Tamil"
+                        : mass.language === "en"
+                        ? "English"
+                        : "Both"
+                    }
+                    variant={mass.language === "ta" ? "navy" : "gold"}
                     size="sm"
                   />
                   <TouchableOpacity style={styles.remindBtn}>
-                    <MaterialCommunityIcons name="bell-outline" size={20} color={Colors.accent.goldDark} />
+                    <MaterialCommunityIcons
+                      name="bell-outline"
+                      size={20}
+                      color={Colors.accent.goldDark}
+                    />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -125,7 +236,7 @@ export default function MassHomeScreen() {
         {/* Special Masses */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Upcoming Special Masses</Text>
-          {SPECIAL.map(m => (
+          {SPECIAL.map((m) => (
             <View key={m._id} style={[styles.massCard, styles.specialCard]}>
               <View style={styles.massTimeCol}>
                 <Text style={styles.specialDate}>Jun 19</Text>
@@ -133,11 +244,19 @@ export default function MassHomeScreen() {
               <View style={styles.massInfo}>
                 <Text style={styles.massTitle}>{m.title}</Text>
                 <View style={styles.venueRow}>
-                  <MaterialCommunityIcons name="clock-outline" size={13} color={Colors.neutral.gray500} />
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={13}
+                    color={Colors.neutral.gray500}
+                  />
                   <Text style={styles.massPriest}>{m.time}</Text>
                 </View>
                 <View style={styles.venueRow}>
-                  <MaterialCommunityIcons name="map-marker-outline" size={13} color={Colors.neutral.gray400} />
+                  <MaterialCommunityIcons
+                    name="map-marker-outline"
+                    size={13}
+                    color={Colors.neutral.gray400}
+                  />
                   <Text style={styles.massVenue}>{m.venue}</Text>
                 </View>
               </View>
@@ -149,15 +268,30 @@ export default function MassHomeScreen() {
         {/* Contact */}
         <View style={styles.contactRow}>
           <TouchableOpacity style={styles.contactBtn}>
-            <BoxedIcon name="phone-outline" size={20} boxSize={44} style={styles.contactIcon} />
+            <BoxedIcon
+              name="phone-outline"
+              size={20}
+              boxSize={44}
+              style={styles.contactIcon}
+            />
             <Text style={styles.contactLabel}>Call Office</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.contactBtn}>
-            <BoxedIcon name="email-outline" size={20} boxSize={44} style={styles.contactIcon} />
+            <BoxedIcon
+              name="email-outline"
+              size={20}
+              boxSize={44}
+              style={styles.contactIcon}
+            />
             <Text style={styles.contactLabel}>Email</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.contactBtn}>
-            <BoxedIcon name="map-marker-outline" size={20} boxSize={44} style={styles.contactIcon} />
+            <BoxedIcon
+              name="map-marker-outline"
+              size={20}
+              boxSize={44}
+              style={styles.contactIcon}
+            />
             <Text style={styles.contactLabel}>Directions</Text>
           </TouchableOpacity>
         </View>
@@ -175,7 +309,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 20,
   },
-  headerTitle: { fontSize: 26, fontWeight: '700', color: Colors.neutral.white },
+  headerTitle: { fontSize: 26, fontWeight: "700", color: Colors.neutral.white },
   headerSub: { fontSize: 13, color: Colors.sky.blueLight, marginTop: 2 },
 
   liveBanner: {
@@ -183,52 +317,91 @@ const styles = StyleSheet.create({
     margin: Spacing.screen,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     ...Shadow.md,
   },
-  liveRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  livePulse: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.semantic.error, marginRight: 6 },
-  liveLabel: { color: Colors.semantic.error, fontWeight: '700', fontSize: 12, letterSpacing: 1 },
-  liveMassName: { color: Colors.neutral.white, fontSize: 18, fontWeight: '700', marginBottom: 4 },
+  liveRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
+  livePulse: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.semantic.error,
+    marginRight: 6,
+  },
+  liveLabel: {
+    color: Colors.semantic.error,
+    fontWeight: "700",
+    fontSize: 12,
+    letterSpacing: 1,
+  },
+  liveMassName: {
+    color: Colors.neutral.white,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
   liveWatching: { color: Colors.sky.blueLight, fontSize: 13 },
-  liveWatchingRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  venueRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  liveWatchingRow: { flexDirection: "row", alignItems: "center", gap: 5 },
+  venueRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 2,
+  },
   livePlayBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
     backgroundColor: Colors.accent.gold,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   dayScrollOuter: { marginBottom: Spacing.xs },
-  dayScroll: { paddingHorizontal: Spacing.screen, gap: Spacing.xs, paddingBottom: Spacing.sm },
+  dayScroll: {
+    paddingHorizontal: Spacing.screen,
+    gap: Spacing.xs,
+    paddingBottom: Spacing.sm,
+  },
   dayPill: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: Radius.full,
     backgroundColor: Colors.neutral.white,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
     borderColor: Colors.neutral.gray200,
     minWidth: 56,
   },
-  dayPillActive: { backgroundColor: Colors.accent.gold, borderColor: Colors.accent.gold },
-  dayText: { fontSize: 13, color: Colors.neutral.gray600, fontWeight: '500' },
-  dayTextActive: { color: Colors.neutral.white, fontWeight: '700' },
-  todayDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.accent.gold, marginTop: 3 },
+  dayPillActive: {
+    backgroundColor: Colors.accent.gold,
+    borderColor: Colors.accent.gold,
+  },
+  dayText: { fontSize: 13, color: Colors.neutral.gray600, fontWeight: "500" },
+  dayTextActive: { color: Colors.neutral.white, fontWeight: "700" },
+  todayDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.accent.gold,
+    marginTop: 3,
+  },
 
   section: { paddingHorizontal: Spacing.screen, marginBottom: Spacing.lg },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: Colors.primary.navy, marginBottom: Spacing.sm },
-  noMass: { padding: Spacing.xl, alignItems: 'center' },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.primary.navy,
+    marginBottom: Spacing.sm,
+  },
+  noMass: { padding: Spacing.xl, alignItems: "center" },
   noMassText: { color: Colors.neutral.gray400, fontSize: 14 },
 
   massCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     backgroundColor: Colors.neutral.white,
     borderRadius: Radius.lg,
     padding: Spacing.md,
@@ -238,30 +411,44 @@ const styles = StyleSheet.create({
   specialCard: { borderLeftWidth: 3, borderLeftColor: Colors.accent.gold },
   massTimeCol: {
     width: 56,
-    alignItems: 'center',
+    alignItems: "center",
     borderRightWidth: 1,
     borderRightColor: Colors.neutral.gray200,
     marginRight: Spacing.md,
     paddingRight: Spacing.sm,
   },
-  massTime: { fontSize: 18, fontWeight: '700', color: Colors.primary.navy },
+  massTime: { fontSize: 18, fontWeight: "700", color: Colors.primary.navy },
   massMeridiem: { fontSize: 11, color: Colors.neutral.gray400 },
-  specialDate: { fontSize: 14, fontWeight: '700', color: Colors.accent.goldDark, textAlign: 'center' },
+  specialDate: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: Colors.accent.goldDark,
+    textAlign: "center",
+  },
   massInfo: { flex: 1 },
-  massTitle: { fontSize: 15, fontWeight: '600', color: Colors.neutral.gray800, marginBottom: 2 },
+  massTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: Colors.neutral.gray800,
+    marginBottom: 2,
+  },
   massTitleTA: { fontSize: 12, color: Colors.neutral.gray400, marginBottom: 4 },
   massPriest: { fontSize: 13, color: Colors.neutral.gray500 },
   massVenue: { fontSize: 12, color: Colors.neutral.gray400 },
-  massActions: { alignItems: 'flex-end', gap: Spacing.xs },
+  massActions: { alignItems: "flex-end", gap: Spacing.xs },
   remindBtn: { marginTop: Spacing.xs },
 
   contactRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingHorizontal: Spacing.screen,
     marginBottom: Spacing.md,
   },
-  contactBtn: { alignItems: 'center', padding: Spacing.md },
+  contactBtn: { alignItems: "center", padding: Spacing.md },
   contactIcon: { marginBottom: 6 },
-  contactLabel: { fontSize: 12, color: Colors.neutral.gray500, fontWeight: '500' },
+  contactLabel: {
+    fontSize: 12,
+    color: Colors.neutral.gray500,
+    fontWeight: "500",
+  },
 });

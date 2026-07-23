@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 import {
   View,
   Text,
@@ -8,58 +8,68 @@ import {
   StatusBar,
   FlatList,
   Dimensions,
-} from 'react-native';
-import { useNavigation, DrawerActions } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BoxedIcon } from '../../components/common/AppIcon/AppIcon';
-import { Colors } from '../../constants/colors';
-import { Spacing, Radius, Shadow } from '../../constants/spacing';
-import { Routes } from '../../constants/routes';
-import { useAppSelector } from '../../hooks/useAppDispatch';
-import { selectUser, selectChurch } from '../../store/slices/auth.slice';
-import { selectAnnouncements } from '../../store/slices/church.slice';
-import { selectDonationSummary } from '../../store/slices/donation.slice';
-import type { Announcement } from '../../types';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
+} from "react-native";
+import { useNavigation, DrawerActions } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { BoxedIcon } from "../../components/common/AppIcon/AppIcon";
+import { Colors } from "../../constants/colors";
+import { Spacing, Radius, Shadow } from "../../constants/spacing";
+import { Routes } from "../../constants/routes";
+import { useAppSelector } from "../../hooks/useAppDispatch";
+import { selectUser, selectChurch } from "../../store/slices/auth.slice";
+import { selectAnnouncements } from "../../store/slices/church.slice";
+import { selectDonationSummary } from "../../store/slices/donation.slice";
+import type { Announcement } from "../../types";
+import { SafeAreaView } from "react-native-safe-area-context";
+import TopSafeArea from "../../components/common/TopSafeArea/TopSafeArea";
 
 const QUICK_ACTIONS = [
-  { icon: 'hand-heart-outline', labelKey: 'home.give_offering', route: Routes.GiveTab },
-  { icon: 'church', labelKey: 'home.mass_timings', route: Routes.MassTab },
-  { icon: 'certificate-outline', labelKey: 'home.certificate_request', route: Routes.ProfileTab },
-  { icon: 'bullhorn-outline', labelKey: 'home.club_events', route: Routes.Community },
+  // { icon: 'hand-heart-outline', labelKey: 'home.give_offering', route: Routes.GiveTab },
+  { icon: "church", labelKey: "home.mass_timings", route: Routes.MassTab },
+  // {
+  //   icon: "certificate-outline",
+  //   labelKey: "home.certificate_request",
+  //   route: Routes.ProfileTab,
+  // },
+  {
+    icon: "bullhorn-outline",
+    labelKey: "home.club_events",
+    route: Routes.Community,
+  },
 ];
 
 const MOCK_ANNOUNCEMENTS: Announcement[] = [
   {
-    _id: 'a1',
-    churchId: 'c1',
-    title: 'Sunday Mass Change',
-    titleTA: 'ஞாயிறு திருப்பலி மாற்றம்',
-    content: 'Sunday 9:30 AM Mass moved to 10:00 AM this week due to diocesan programme.',
-    type: 'mass_change',
-    priority: 'high',
+    _id: "a1",
+    churchId: "c1",
+    title: "Sunday Mass Change",
+    titleTA: "ஞாயிறு திருப்பலி மாற்றம்",
+    content:
+      "Sunday 9:30 AM Mass moved to 10:00 AM this week due to diocesan programme.",
+    type: "mass_change",
+    priority: "high",
     publishedAt: new Date().toISOString(),
   },
   {
-    _id: 'a2',
-    churchId: 'c1',
-    title: 'Youth Annual Sports Day',
-    titleTA: 'இளைஞர் ஆண்டு விளையாட்டு நாள்',
-    content: 'Youth Annual Sports Day on June 22. Register with the Youth Club before June 18.',
-    type: 'event',
-    priority: 'normal',
+    _id: "a2",
+    churchId: "c1",
+    title: "Youth Annual Sports Day",
+    titleTA: "இளைஞர் ஆண்டு விளையாட்டு நாள்",
+    content:
+      "Youth Annual Sports Day on June 22. Register with the Youth Club before June 18.",
+    type: "event",
+    priority: "normal",
     publishedAt: new Date().toISOString(),
   },
 ];
 
 function getGreetingKey() {
   const h = new Date().getHours();
-  if (h < 12) return 'home.greeting_morning';
-  if (h < 17) return 'home.greeting_afternoon';
-  if (h < 20) return 'home.greeting_evening';
-  return 'home.greeting_night';
+  if (h < 12) return "home.greeting_morning";
+  if (h < 17) return "home.greeting_afternoon";
+  if (h < 20) return "home.greeting_evening";
+  return "home.greeting_night";
 }
 
 export default function HomeScreen() {
@@ -70,58 +80,102 @@ export default function HomeScreen() {
   const announcements = useAppSelector(selectAnnouncements);
   const donationSummary = useAppSelector(selectDonationSummary);
 
-  const displayAnnouncements = announcements.length > 0 ? announcements : MOCK_ANNOUNCEMENTS;
-  const firstName = user?.profile.firstName ?? 'Friend';
+  const displayAnnouncements =
+    announcements.length > 0 ? announcements : MOCK_ANNOUNCEMENTS;
+  const firstName = user?.profile.firstName ?? "Friend";
 
   const openDrawer = useCallback(() => {
     navigation.dispatch(DrawerActions.openDrawer());
   }, [navigation]);
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right']}>
+    <SafeAreaView style={styles.container} edges={["left", "right"]}>
       <TopSafeArea color={Colors.primary.navy} />
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary.navyDark} />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={Colors.primary.navyDark}
+      />
 
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={openDrawer} style={styles.menuBtn}>
-            <MaterialCommunityIcons name="menu" size={24} color={Colors.neutral.white} />
+            <MaterialCommunityIcons
+              name="menu"
+              size={24}
+              color={Colors.neutral.white}
+            />
           </TouchableOpacity>
           <View>
-            <Text style={styles.greeting}>{t(getGreetingKey(), { name: firstName })}</Text>
-            <Text style={styles.churchName}>{church?.name ?? t('home.your_parish')}</Text>
+            <Text style={styles.greeting}>
+              {t(getGreetingKey(), { name: firstName })}
+            </Text>
+            <Text style={styles.churchName}>
+              {church?.name ?? t("home.your_parish")}
+            </Text>
           </View>
         </View>
         <TouchableOpacity style={styles.notifBtn}>
-          <MaterialCommunityIcons name="bell-outline" size={24} color={Colors.neutral.white} />
-          <View style={styles.notifBadge}><Text style={styles.notifBadgeText}>3</Text></View>
+          <MaterialCommunityIcons
+            name="bell-outline"
+            size={24}
+            color={Colors.neutral.white}
+          />
+          <View style={styles.notifBadge}>
+            <Text style={styles.notifBadgeText}>3</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
-
         {/* Live Banner */}
-        <TouchableOpacity style={styles.liveBanner} onPress={() => navigation.navigate(Routes.MassTab)}>
+        <TouchableOpacity
+          style={styles.liveBanner}
+          onPress={() => navigation.navigate(Routes.MassTab)}
+        >
           <View style={styles.liveDot} />
-          <Text style={styles.liveText}>{t('home.live_now')}</Text>
-          <Text style={styles.liveMassName}>  Sunday Holy Mass</Text>
+          <Text style={styles.liveText}>{t("home.live_now")}</Text>
+          <Text style={styles.liveMassName}> Sunday Holy Mass</Text>
           <View style={styles.liveJoinRow}>
-            <Text style={styles.liveJoin}>{t('home.join')}</Text>
-            <MaterialCommunityIcons name="arrow-right" size={14} color={Colors.neutral.white} />
+            <Text style={styles.liveJoin}>{t("home.join")}</Text>
+            <MaterialCommunityIcons
+              name="arrow-right"
+              size={14}
+              color={Colors.neutral.white}
+            />
           </View>
         </TouchableOpacity>
 
         {/* Feast Day / Welcome Card */}
         <View style={styles.featureCard}>
           <View style={styles.featureCardInner}>
-            <Text style={styles.feastLabel}>{t('home.today_feast').toUpperCase()}</Text>
+            <Text style={styles.feastLabel}>
+              {t("home.today_feast").toUpperCase()}
+            </Text>
             <Text style={styles.feastName}>Sacred Heart of Jesus</Text>
-            <Text style={styles.feastDate}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</Text>
-            <Text style={styles.feastMass}>Special Mass at 6:00 AM & 7:30 AM</Text>
-            <TouchableOpacity style={styles.feastCta} onPress={() => navigation.navigate(Routes.MassTab)}>
-              <Text style={styles.feastCtaText}>{t('home.view_mass_timings')}</Text>
-              <MaterialCommunityIcons name="arrow-right" size={15} color={Colors.accent.gold} />
+            <Text style={styles.feastDate}>
+              {new Date().toLocaleDateString("en-IN", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </Text>
+            <Text style={styles.feastMass}>
+              Special Mass at 6:00 AM & 7:30 AM
+            </Text>
+            <TouchableOpacity
+              style={styles.feastCta}
+              onPress={() => navigation.navigate(Routes.MassTab)}
+            >
+              <Text style={styles.feastCtaText}>
+                {t("home.view_mass_timings")}
+              </Text>
+              <MaterialCommunityIcons
+                name="arrow-right"
+                size={15}
+                color={Colors.accent.gold}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -130,16 +184,20 @@ export default function HomeScreen() {
         <View style={styles.nextMassCard}>
           <View style={styles.nextMassLeft}>
             <View style={styles.cardLabelRow}>
-              <MaterialCommunityIcons name="clock-outline" size={14} color={Colors.neutral.gray400} />
-              <Text style={styles.nextMassLabel}>{t('home.next_mass')}</Text>
+              <MaterialCommunityIcons
+                name="clock-outline"
+                size={14}
+                color={Colors.neutral.gray400}
+              />
+              <Text style={styles.nextMassLabel}>{t("home.next_mass")}</Text>
             </View>
             <Text style={styles.nextMassTitle}>Sunday Holy Mass</Text>
-            <Text style={styles.nextMassTime}>7:30 AM  ·  Main Church</Text>
+            <Text style={styles.nextMassTime}>7:30 AM · Main Church</Text>
           </View>
           <View style={styles.nextMassRight}>
             <Text style={styles.nextMassIn}>In 45 min</Text>
             <TouchableOpacity style={styles.remindBtn}>
-              <Text style={styles.remindText}>{t('home.remind')}</Text>
+              <Text style={styles.remindText}>{t("home.remind")}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -147,29 +205,40 @@ export default function HomeScreen() {
         {/* Daily Reading */}
         <TouchableOpacity
           style={styles.readingCard}
-          onPress={() => navigation.navigate(Routes.BibleTab)}>
+          onPress={() => navigation.navigate(Routes.BibleTab)}
+        >
           <View style={styles.cardLabelRow}>
-            <MaterialCommunityIcons name="book-open-page-variant-outline" size={14} color={Colors.neutral.gray400} />
-            <Text style={styles.readingLabel}>{t('home.daily_reading')}</Text>
+            <MaterialCommunityIcons
+              name="book-open-page-variant-outline"
+              size={14}
+              color={Colors.neutral.gray400}
+            />
+            <Text style={styles.readingLabel}>{t("home.daily_reading")}</Text>
           </View>
           <Text style={styles.readingRef}>First Reading: Isaiah 61:1–3</Text>
           <Text style={styles.readingPreview} numberOfLines={2}>
-            "The Spirit of the Lord is upon me, for He has anointed me to bring Good News to the poor..."
+            "The Spirit of the Lord is upon me, for He has anointed me to bring
+            Good News to the poor..."
           </Text>
           <View style={styles.readMoreRow}>
-            <Text style={styles.readMore}>{t('home.read_more')}</Text>
-            <MaterialCommunityIcons name="arrow-right" size={15} color={Colors.sky.blue} />
+            <Text style={styles.readMore}>{t("home.read_more")}</Text>
+            <MaterialCommunityIcons
+              name="arrow-right"
+              size={15}
+              color={Colors.sky.blue}
+            />
           </View>
         </TouchableOpacity>
 
         {/* Quick Actions */}
-        <Text style={styles.sectionTitle}>{t('home.quick_actions')}</Text>
+        <Text style={styles.sectionTitle}>{t("home.quick_actions")}</Text>
         <View style={styles.actionsGrid}>
           {QUICK_ACTIONS.map((action, i) => (
             <TouchableOpacity
               key={i}
               style={styles.actionTile}
-              onPress={() => navigation.navigate(action.route)}>
+              onPress={() => navigation.navigate(action.route)}
+            >
               <BoxedIcon
                 name={action.icon}
                 size={24}
@@ -185,40 +254,58 @@ export default function HomeScreen() {
 
         {/* Announcements */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t('home.announcements')}</Text>
+          <Text style={styles.sectionTitle}>{t("home.announcements")}</Text>
           <TouchableOpacity>
-            <Text style={styles.seeAll}>{t('home.see_all')}</Text>
+            <Text style={styles.seeAll}>{t("home.see_all")}</Text>
           </TouchableOpacity>
         </View>
-        {displayAnnouncements.slice(0, 3).map(ann => (
-          <View key={ann._id} style={[styles.annCard, ann.priority === 'high' && styles.annCardHigh]}>
+        {displayAnnouncements.slice(0, 3).map((ann) => (
+          <View
+            key={ann._id}
+            style={[
+              styles.annCard,
+              ann.priority === "high" && styles.annCardHigh,
+            ]}
+          >
             <View style={styles.annDot} />
             <View style={styles.annContent}>
               <Text style={styles.annTitle}>{ann.title}</Text>
-              <Text style={styles.annBody} numberOfLines={2}>{ann.content}</Text>
+              <Text style={styles.annBody} numberOfLines={2}>
+                {ann.content}
+              </Text>
             </View>
           </View>
         ))}
 
         {/* Donation Summary */}
-        <View style={styles.donationCard}>
+
+        {/* <View style={styles.donationCard}>
           <View style={styles.donationRow}>
             <View>
-              <Text style={styles.donationLabel}>{t('home.donation_summary', { year: new Date().getFullYear() })}</Text>
+              <Text style={styles.donationLabel}>
+                {t("home.donation_summary", { year: new Date().getFullYear() })}
+              </Text>
               <Text style={styles.donationAmount}>₹4,200</Text>
             </View>
             <TouchableOpacity
               style={styles.giveBtn}
-              onPress={() => navigation.navigate(Routes.GiveTab)}>
-              <Text style={styles.giveBtnText}>{t('home.give_now')}</Text>
-              <MaterialCommunityIcons name="arrow-right" size={16} color={Colors.neutral.white} />
+              onPress={() => navigation.navigate(Routes.GiveTab)}
+            >
+              <Text style={styles.giveBtnText}>{t("home.give_now")}</Text>
+              <MaterialCommunityIcons
+                name="arrow-right"
+                size={16}
+                color={Colors.neutral.white}
+              />
             </TouchableOpacity>
           </View>
           <View style={styles.progressBg}>
-            <View style={[styles.progressFill, { width: '42%' }]} />
+            <View style={[styles.progressFill, { width: "42%" }]} />
           </View>
-          <Text style={styles.progressLabel}>{t('home.annual_goal')}: ₹9,999</Text>
-        </View>
+          <Text style={styles.progressLabel}>
+            {t("home.annual_goal")}: ₹9,999
+          </Text>
+        </View> */}
 
         <View style={{ height: 24 }} />
       </ScrollView>
@@ -233,49 +320,70 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.screen,
     paddingTop: 8,
     paddingBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center' },
+  headerLeft: { flexDirection: "row", alignItems: "center" },
   menuBtn: { marginRight: Spacing.md },
-  greeting: { fontSize: 17, fontWeight: '600', color: Colors.neutral.white },
+  greeting: { fontSize: 17, fontWeight: "600", color: Colors.neutral.white },
   churchName: { fontSize: 12, color: Colors.sky.blueLight, marginTop: 2 },
-  notifBtn: { position: 'relative' },
+  notifBtn: { position: "relative" },
   notifBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: -4,
     right: -4,
     width: 16,
     height: 16,
     borderRadius: 8,
     backgroundColor: Colors.semantic.error,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  notifBadgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
+  notifBadgeText: { color: "#fff", fontSize: 9, fontWeight: "700" },
   scroll: { flex: 1 },
 
   liveBanner: {
     backgroundColor: Colors.semantic.error,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: Spacing.screen,
     paddingVertical: 10,
   },
-  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff', marginRight: 8 },
-  liveText: { color: '#fff', fontWeight: '700', fontSize: 12, letterSpacing: 1 },
-  liveMassName: { color: '#fff', fontSize: 13, flex: 1 },
-  liveJoin: { color: '#fff', fontWeight: '600', fontSize: 13, marginRight: 4 },
-  liveJoinRow: { flexDirection: 'row', alignItems: 'center' },
-  cardLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 4 },
-  readMoreRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#fff",
+    marginRight: 8,
+  },
+  liveText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 12,
+    letterSpacing: 1,
+  },
+  liveMassName: { color: "#fff", fontSize: 13, flex: 1 },
+  liveJoin: { color: "#fff", fontWeight: "600", fontSize: 13, marginRight: 4 },
+  liveJoinRow: { flexDirection: "row", alignItems: "center" },
+  cardLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginBottom: 4,
+  },
+  readMoreRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 8,
+  },
 
   featureCard: {
     margin: Spacing.screen,
     borderRadius: Radius.xl,
     backgroundColor: Colors.primary.navy,
-    overflow: 'hidden',
+    overflow: "hidden",
     ...Shadow.md,
   },
   featureCardInner: {
@@ -283,16 +391,32 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: Colors.accent.gold,
   },
-  feastLabel: { color: Colors.accent.gold, fontSize: 11, fontWeight: '700', letterSpacing: 1.5, marginBottom: 6 },
-  feastName: { color: Colors.neutral.white, fontSize: 22, fontWeight: '700', marginBottom: 4 },
+  feastLabel: {
+    color: Colors.accent.gold,
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+    marginBottom: 6,
+  },
+  feastName: {
+    color: Colors.neutral.white,
+    fontSize: 22,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
   feastDate: { color: Colors.sky.blueLight, fontSize: 13, marginBottom: 6 },
   feastMass: { color: Colors.neutral.white, opacity: 0.8, fontSize: 13 },
-  feastCta: { marginTop: Spacing.md, flexDirection: 'row', alignItems: 'center', gap: 4 },
-  feastCtaText: { color: Colors.accent.gold, fontWeight: '600', fontSize: 13 },
+  feastCta: {
+    marginTop: Spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  feastCtaText: { color: Colors.accent.gold, fontWeight: "600", fontSize: 13 },
 
   nextMassCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.neutral.white,
     marginHorizontal: Spacing.screen,
     marginBottom: Spacing.sm,
@@ -304,17 +428,30 @@ const styles = StyleSheet.create({
   },
   nextMassLeft: { flex: 1 },
   nextMassLabel: { fontSize: 12, color: Colors.neutral.gray400 },
-  nextMassTitle: { fontSize: 16, fontWeight: '600', color: Colors.primary.navy },
+  nextMassTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Colors.primary.navy,
+  },
   nextMassTime: { fontSize: 13, color: Colors.neutral.gray500, marginTop: 2 },
-  nextMassRight: { alignItems: 'flex-end' },
-  nextMassIn: { fontSize: 13, fontWeight: '600', color: Colors.semantic.success, marginBottom: 8 },
+  nextMassRight: { alignItems: "flex-end" },
+  nextMassIn: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: Colors.semantic.success,
+    marginBottom: 8,
+  },
   remindBtn: {
     backgroundColor: Colors.accent.goldPale,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: Radius.full,
   },
-  remindText: { fontSize: 12, color: Colors.accent.goldDark, fontWeight: '600' },
+  remindText: {
+    fontSize: 12,
+    color: Colors.accent.goldDark,
+    fontWeight: "600",
+  },
 
   readingCard: {
     backgroundColor: Colors.neutral.white,
@@ -325,34 +462,62 @@ const styles = StyleSheet.create({
     ...Shadow.sm,
   },
   readingLabel: { fontSize: 12, color: Colors.neutral.gray400 },
-  readingRef: { fontSize: 13, fontWeight: '600', color: Colors.primary.navy, marginBottom: 6 },
-  readingPreview: { fontSize: 14, color: Colors.neutral.gray600, lineHeight: 22, fontStyle: 'italic' },
-  readMore: { color: Colors.sky.blue, fontWeight: '600', fontSize: 13 },
+  readingRef: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: Colors.primary.navy,
+    marginBottom: 6,
+  },
+  readingPreview: {
+    fontSize: 14,
+    color: Colors.neutral.gray600,
+    lineHeight: 22,
+    fontStyle: "italic",
+  },
+  readMore: { color: Colors.sky.blue, fontWeight: "600", fontSize: 13 },
 
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.screen, marginBottom: Spacing.sm },
-  sectionTitle: { fontSize: 17, fontWeight: '700', color: Colors.primary.navy, paddingHorizontal: Spacing.screen, marginBottom: Spacing.sm },
-  seeAll: { color: Colors.sky.blue, fontSize: 13, fontWeight: '500' },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: Spacing.screen,
+    marginBottom: Spacing.sm,
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: Colors.primary.navy,
+    paddingHorizontal: Spacing.screen,
+    marginBottom: Spacing.sm,
+  },
+  seeAll: { color: Colors.sky.blue, fontSize: 13, fontWeight: "500" },
 
   actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     paddingHorizontal: Spacing.screen,
     gap: Spacing.sm,
     marginBottom: Spacing.lg,
   },
   actionTile: {
-    width: '47.5%',
+    width: "47.5%",
     backgroundColor: Colors.neutral.white,
     borderRadius: Radius.lg,
     padding: Spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
     ...Shadow.sm,
   },
   actionIcon: { marginBottom: 8 },
-  actionLabel: { fontSize: 13, fontWeight: '500', color: Colors.primary.navy, textAlign: 'center', lineHeight: 18 },
+  actionLabel: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: Colors.primary.navy,
+    textAlign: "center",
+    lineHeight: 18,
+  },
 
   annCard: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: Colors.neutral.white,
     marginHorizontal: Spacing.screen,
     marginBottom: Spacing.sm,
@@ -361,9 +526,21 @@ const styles = StyleSheet.create({
     ...Shadow.sm,
   },
   annCardHigh: { borderLeftWidth: 3, borderLeftColor: Colors.accent.gold },
-  annDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.accent.gold, marginTop: 5, marginRight: Spacing.sm },
+  annDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.accent.gold,
+    marginTop: 5,
+    marginRight: Spacing.sm,
+  },
   annContent: { flex: 1 },
-  annTitle: { fontSize: 14, fontWeight: '600', color: Colors.neutral.gray800, marginBottom: 4 },
+  annTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.neutral.gray800,
+    marginBottom: 4,
+  },
   annBody: { fontSize: 13, color: Colors.neutral.gray500, lineHeight: 20 },
 
   donationCard: {
@@ -373,22 +550,31 @@ const styles = StyleSheet.create({
     borderRadius: Radius.xl,
     padding: Spacing.lg,
   },
-  donationRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.md },
+  donationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: Spacing.md,
+  },
   donationLabel: { color: Colors.sky.blueLight, fontSize: 12, marginBottom: 4 },
-  donationAmount: { color: Colors.neutral.white, fontSize: 28, fontWeight: '700' },
+  donationAmount: {
+    color: Colors.neutral.white,
+    fontSize: 28,
+    fontWeight: "700",
+  },
   giveBtn: {
     backgroundColor: Colors.accent.gold,
     borderRadius: Radius.md,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
-  giveBtnText: { color: Colors.neutral.white, fontWeight: '700', fontSize: 14 },
+  giveBtnText: { color: Colors.neutral.white, fontWeight: "700", fontSize: 14 },
   progressBg: {
     height: 6,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 3,
     marginBottom: 6,
   },
