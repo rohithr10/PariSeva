@@ -43,6 +43,9 @@ export const Routes = {
   Certificates: 'Certificates',
   CertificateRequest: 'CertificateRequest',
 
+  // Notifications
+  Notifications: 'Notifications',
+
   // Drawer
   Community: 'Community',
   YouthClub: 'YouthClub',

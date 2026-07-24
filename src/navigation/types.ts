@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { DrawerScreenProps } from '@react-navigation/drawer';
+import type { NavigatorScreenParams } from '@react-navigation/native';
 import { Routes } from '../constants/routes';
 import type { Church, OfferingType } from '../types';
 
@@ -27,7 +28,13 @@ export type MassStackParamList = {
 // ─── Bible Stack ──────────────────────────────────────────────────────────────
 export type BibleStackParamList = {
   [Routes.BibleHome]: undefined;
-  [Routes.BibleReader]: { book: string; chapter: number; verse?: number };
+  [Routes.BibleReader]: {
+    book: string; // localized display name
+    bookId: string; // USFM code, e.g. "GEN"
+    chapter: number;
+    numberOfChapters?: number;
+    verse?: number;
+  };
   [Routes.DailyReading]: undefined;
   [Routes.Bookmarks]: undefined;
   [Routes.BibleNotes]: undefined;
@@ -68,7 +75,7 @@ export type ProfileStackParamList = {
 export type TabParamList = {
   [Routes.Home]: undefined;
   [Routes.MassTab]: undefined;
-  [Routes.BibleTab]: undefined;
+  [Routes.BibleTab]: NavigatorScreenParams<BibleStackParamList> | undefined;
   [Routes.GiveTab]: undefined;
   [Routes.ProfileTab]: undefined;
 };
@@ -76,6 +83,7 @@ export type TabParamList = {
 // ─── Drawer ───────────────────────────────────────────────────────────────────
 export type DrawerParamList = {
   MainTabs: undefined;
+  [Routes.Notifications]: undefined;
   [Routes.Community]: undefined;
   [Routes.YouthClub]: undefined;
   [Routes.WomensClub]: undefined;

@@ -1,51 +1,49 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity,
+  ActivityIndicator, Share,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { Colors } from '../../constants/colors';
 import { Spacing, Radius, Shadow } from '../../constants/spacing';
-import { Routes } from '../../constants/routes';
+import { otherLanguage } from '../../constants/bible';
+import { useDailyMeta, useReadingTexts } from '../../hooks/useDailyReadings';
+import type { AppLanguage } from '../../i18n';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
 
-const READING = {
-  date: 'Friday, June 5, 2026',
-  liturgicalDay: 'Sacred Heart of Jesus',
-  liturgicalDayTA: 'இயேசுவின் திரு இதயம்',
-  readings: [
-    {
-      label: 'First Reading',
-      labelTA: 'முதல் வாசகம்',
-      reference: 'Isaiah 61:1–3a, 6a, 8b–9',
-      text: 'The spirit of the Lord GOD is upon me, because the LORD has anointed me; He has sent me to bring glad tidings to the lowly, to heal the brokenhearted, to proclaim liberty to the captives and release to the prisoners, to announce a year of favor from the LORD and a day of vindication by our God, to comfort all who mourn; to place on those who mourn in Zion a diadem instead of ashes, to give them oil of gladness in place of mourning.',
-    },
-    {
-      label: 'Responsorial Psalm',
-      labelTA: 'பதிலுரைப் பாடல்',
-      reference: 'Psalm 23:1–3a, 3b–4, 5, 6',
-      text: 'R. The Lord is my shepherd; there is nothing I shall want.\n\nThe LORD is my shepherd; I shall not want. In verdant pastures he gives me repose; beside restful waters he leads me; he refreshes my soul.',
-    },
-    {
-      label: 'Second Reading',
-      labelTA: 'இரண்டாம் வாசகம்',
-      reference: 'Ephesians 3:8–12, 14–19',
-      text: 'Brothers and sisters: To me, the very least of all the holy ones, this grace was given, to preach to the Gentiles the inscrutable riches of Christ, and to bring to light for all what is the plan of the mystery hidden from ages past in God who created all things, so that the manifold wisdom of God might now be made known through the church to the principalities and authorities in the heavens.',
-    },
-    {
-      label: 'Gospel',
-      labelTA: 'நற்செய்தி',
-      reference: 'John 19:31–37',
-      text: 'Since it was preparation day, in order that the bodies might not remain on the cross on the sabbath, for the sabbath day of that week was a solemn one, the Jews asked Pilate that their legs be broken and they be taken down. So the soldiers came and broke the legs of the first and then of the other one who was crucified with Jesus. But when they came to Jesus and saw that he was already dead, they did not break his legs, but one soldier thrust his lance into his side, and immediately blood and water flowed out.',
-    },
-  ],
-};
-
 export default function DailyReadingScreen() {
   const navigation = useNavigation<any>();
-  const [showTA, setShowTA] = useState(false);
+  const { i18n } = useTranslation();
+  const lang = (i18n.language as AppLanguage) ?? 'en';
+  const parallelLang = otherLanguage(lang);
+
+  const today = useMemo(() => new Date(), []);
+  const dateKey = today.toISOString().slice(0, 10);
+
+  const [showParallel, setShowParallel] = useState(false);
   const [expandedIdx, setExpandedIdx] = useState(0);
+
+  const meta = useDailyMeta(today);
+  const primary = useReadingTexts(meta.data?.readings, lang, dateKey, !!meta.data);
+  const parallel = useReadingTexts(
+    meta.data?.readings, parallelLang, dateKey, !!meta.data && showParallel,
+  );
+
+  const dateLabel = today.toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+  const parallelLabel = parallelLang === 'ta' ? 'த' : 'A';
+
+  const shareReadings = async () => {
+    if (!meta.data) return;
+    const lines = meta.data.readings.map(r => `${r.label}: ${r.reference}`).join('\n');
+    await Share.share({
+      message: `${meta.data.feastName ?? 'Daily Readings'}\n${dateLabel}\n\n${lines}\n\n— Shared via My Holy Nest`,
+    });
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
@@ -53,70 +51,118 @@ export default function DailyReadingScreen() {
       <StatusBar barStyle="light-content" backgroundColor={Colors.primary.navyDark} />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
           <MaterialCommunityIcons name="arrow-left" style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Daily Reading</Text>
-        <TouchableOpacity onPress={() => setShowTA(t => !t)} style={styles.langBtn}>
-          <Text style={[styles.langBtnText, showTA && styles.langBtnActive]}>த</Text>
+        <TouchableOpacity onPress={() => setShowParallel(t => !t)} style={styles.langBtn} hitSlop={8}>
+          <Text style={[styles.langBtnText, showParallel && styles.langBtnActive]}>{parallelLabel}</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Day Banner */}
-        <View style={styles.dayBanner}>
-          <Text style={styles.date}>{READING.date}</Text>
-          <Text style={styles.feast}>{READING.liturgicalDay}</Text>
-          <Text style={styles.feastTA}>{READING.liturgicalDayTA}</Text>
+      {meta.isLoading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={Colors.accent.gold} />
+          <Text style={styles.stateText}>Loading today's readings…</Text>
         </View>
-
-        {/* Readings */}
-        {READING.readings.map((r, i) => (
-          <TouchableOpacity
-            key={i}
-            style={[styles.readingCard, i === expandedIdx && styles.readingCardExpanded]}
-            onPress={() => setExpandedIdx(i === expandedIdx ? -1 : i)}
-            activeOpacity={0.9}>
-            <View style={styles.readingHeader}>
-              <View>
-                <Text style={styles.readingLabel}>{r.label}</Text>
-                {showTA && <Text style={styles.readingLabelTA}>{r.labelTA}</Text>}
-                <Text style={styles.readingRef}>{r.reference}</Text>
-              </View>
-              <MaterialCommunityIcons name={i === expandedIdx ? 'chevron-up' : 'chevron-down'} style={styles.expandIcon} />
-            </View>
-            {i === expandedIdx && (
-              <Text style={styles.readingText}>{r.text}</Text>
+      ) : meta.isError ? (
+        <View style={styles.center}>
+          <MaterialCommunityIcons name="calendar-alert" size={40} color={Colors.neutral.gray400} />
+          <Text style={styles.stateText}>Readings aren't available right now.</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={() => meta.refetch()}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Day Banner */}
+          <View style={styles.dayBanner}>
+            <Text style={styles.date}>{dateLabel}</Text>
+            <Text style={styles.feast}>
+              {meta.data?.feastName ?? meta.data?.season ?? 'Daily Readings'}
+            </Text>
+            {!!meta.data?.season && meta.data?.feastName && (
+              <Text style={styles.feastTA}>{meta.data.season}</Text>
             )}
-          </TouchableOpacity>
-        ))}
+          </View>
 
-        {/* Reflection */}
-        <View style={styles.reflectionCard}>
-          <Text style={styles.reflectionTitle}>Reflection</Text>
-          <Text style={styles.reflectionText}>
-            The Sacred Heart of Jesus calls us to a deeper understanding of God's love. Today's readings invite us to reflect on the pierced heart of Jesus as the source of our salvation and the model for Christian love. Let us open our hearts to receive His mercy and share it with others.
-          </Text>
-        </View>
+          {/* Readings */}
+          {meta.data?.readings.map((r, i) => {
+            const primaryText = primary.data?.[r.type];
+            const parallelText = parallel.data?.[r.type];
+            const expanded = i === expandedIdx;
+            return (
+              <TouchableOpacity
+                key={r.type}
+                style={[styles.readingCard, expanded && styles.readingCardExpanded]}
+                onPress={() => setExpandedIdx(expanded ? -1 : i)}
+                activeOpacity={0.9}>
+                <View style={styles.readingHeader}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.readingLabel}>{r.label}</Text>
+                    <Text style={styles.readingRef}>{r.reference}</Text>
+                  </View>
+                  <MaterialCommunityIcons
+                    name={expanded ? 'chevron-up' : 'chevron-down'}
+                    style={styles.expandIcon}
+                  />
+                </View>
 
-        {/* Action Buttons */}
-        <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionBtn}>
-            <MaterialCommunityIcons name="arrow-up" style={styles.actionIcon} />
-            <Text style={styles.actionText}>Share</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
-            <MaterialCommunityIcons name="volume-high" style={styles.actionIcon} />
-            <Text style={styles.actionText}>Listen</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
-            <MaterialCommunityIcons name="bookmark-outline" style={styles.actionIcon} />
-            <Text style={styles.actionText}>Bookmark</Text>
-          </TouchableOpacity>
-        </View>
+                {expanded && (
+                  <View style={styles.readingBody}>
+                    {primary.isLoading ? (
+                      <ActivityIndicator color={Colors.accent.gold} style={{ marginTop: Spacing.md }} />
+                    ) : primaryText?.available ? (
+                      <Text style={styles.readingText}>{primaryText.text}</Text>
+                    ) : (
+                      <Text style={styles.unavailable}>
+                        This passage isn't in the free {lang === 'ta' ? 'Tamil' : 'English'} translation
+                        {' '}(deuterocanonical). Reference above.
+                      </Text>
+                    )}
 
-        <View style={{ height: 32 }} />
-      </ScrollView>
+                    {showParallel && (
+                      parallel.isLoading ? (
+                        <Text style={styles.parallelText}>…</Text>
+                      ) : parallelText?.available ? (
+                        <Text style={styles.parallelText}>{parallelText.text}</Text>
+                      ) : null
+                    )}
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+
+          {/* Thought for the day (feast quote) */}
+          {!!meta.data?.feastQuote && (
+            <View style={styles.reflectionCard}>
+              <Text style={styles.reflectionTitle}>Thought for the Day</Text>
+              <Text style={styles.reflectionText}>"{meta.data.feastQuote}"</Text>
+            </View>
+          )}
+
+          {/* Actions */}
+          <View style={styles.actionsRow}>
+            <TouchableOpacity style={styles.actionBtn} onPress={shareReadings}>
+              <MaterialCommunityIcons name="share-variant-outline" style={styles.actionIcon} />
+              <Text style={styles.actionText}>Share</Text>
+            </TouchableOpacity>
+            {!!meta.data?.usccbLink && (
+              <TouchableOpacity
+                style={styles.actionBtn}
+                onPress={() => setShowParallel(t => !t)}>
+                <MaterialCommunityIcons name="translate" style={styles.actionIcon} />
+                <Text style={styles.actionText}>
+                  {parallelLang === 'ta' ? 'தமிழ்' : 'English'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          <View style={{ height: 32 }} />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -133,9 +179,20 @@ const styles = StyleSheet.create({
   },
   backIcon: { color: Colors.neutral.white, fontSize: 22 },
   headerTitle: { color: Colors.neutral.white, fontSize: 18, fontWeight: '700' },
-  langBtn: { padding: 4 },
-  langBtnText: { fontSize: 18, color: Colors.neutral.white, opacity: 0.6 },
+  langBtn: { padding: 4, minWidth: 28, alignItems: 'center' },
+  langBtnText: { fontSize: 18, fontWeight: '700', color: Colors.neutral.white, opacity: 0.6 },
   langBtnActive: { color: Colors.accent.gold, opacity: 1 },
+
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl },
+  stateText: { marginTop: Spacing.md, color: Colors.neutral.gray500, fontSize: 14, textAlign: 'center' },
+  retryBtn: {
+    marginTop: Spacing.md,
+    backgroundColor: Colors.accent.gold,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.full,
+  },
+  retryText: { color: Colors.neutral.white, fontWeight: '700' },
 
   dayBanner: {
     backgroundColor: Colors.primary.navyLight,
@@ -144,7 +201,7 @@ const styles = StyleSheet.create({
   },
   date: { color: Colors.sky.blueLight, fontSize: 13, marginBottom: 6 },
   feast: { color: Colors.neutral.white, fontSize: 22, fontWeight: '700', textAlign: 'center', marginBottom: 4 },
-  feastTA: { color: Colors.accent.gold, fontSize: 16, textAlign: 'center' },
+  feastTA: { color: Colors.accent.gold, fontSize: 15, textAlign: 'center' },
 
   readingCard: {
     backgroundColor: Colors.neutral.white,
@@ -157,15 +214,26 @@ const styles = StyleSheet.create({
   readingCardExpanded: { borderLeftWidth: 3, borderLeftColor: Colors.accent.gold },
   readingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   readingLabel: { fontSize: 13, fontWeight: '700', color: Colors.accent.goldDark, marginBottom: 2 },
-  readingLabelTA: { fontSize: 12, color: Colors.neutral.gray400, marginBottom: 2 },
   readingRef: { fontSize: 14, fontWeight: '600', color: Colors.primary.navy },
-  expandIcon: { fontSize: 12, color: Colors.neutral.gray400 },
-  readingText: {
-    fontSize: 15,
-    lineHeight: 26,
-    color: Colors.neutral.gray700,
-    marginTop: Spacing.md,
+  expandIcon: { fontSize: 18, color: Colors.neutral.gray400, marginLeft: Spacing.sm },
+  readingBody: { marginTop: Spacing.md },
+  readingText: { fontSize: 15, lineHeight: 26, color: Colors.neutral.gray700 },
+  parallelText: {
+    fontSize: 14,
+    lineHeight: 25,
+    color: Colors.neutral.gray500,
     fontStyle: 'italic',
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: Colors.neutral.gray100,
+  },
+  unavailable: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: Colors.neutral.gray400,
+    fontStyle: 'italic',
+    marginTop: Spacing.xs,
   },
 
   reflectionCard: {
@@ -177,7 +245,7 @@ const styles = StyleSheet.create({
     borderLeftColor: Colors.accent.gold,
   },
   reflectionTitle: { fontSize: 16, fontWeight: '700', color: Colors.primary.navy, marginBottom: Spacing.sm },
-  reflectionText: { fontSize: 14, lineHeight: 24, color: Colors.neutral.gray700 },
+  reflectionText: { fontSize: 14, lineHeight: 24, color: Colors.neutral.gray700, fontStyle: 'italic' },
 
   actionsRow: {
     flexDirection: 'row',
@@ -186,6 +254,6 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   actionBtn: { alignItems: 'center', padding: Spacing.md },
-  actionIcon: { fontSize: 24, marginBottom: 4 , color: Colors.primary.navy},
+  actionIcon: { fontSize: 24, marginBottom: 4, color: Colors.primary.navy },
   actionText: { fontSize: 12, color: Colors.neutral.gray500, fontWeight: '500' },
 });

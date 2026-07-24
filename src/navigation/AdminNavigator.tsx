@@ -1,6 +1,5 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Colors } from '../constants/colors';
 import { Routes } from '../constants/routes';
 import type { AdminStackParamList } from './types';
 
@@ -16,19 +15,16 @@ const Stack = createNativeStackNavigator<AdminStackParamList>();
 
 export default function AdminNavigator() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: Colors.primary.navy },
-        headerTintColor: Colors.neutral.white,
-        headerTitleStyle: { fontWeight: '600' },
-      }}>
-      <Stack.Screen name={Routes.AdminDashboard} component={AdminDashboardScreen} options={{ title: 'Parish Dashboard' }} />
-      <Stack.Screen name={Routes.AdminMass} component={AdminMassScreen} options={{ title: 'Mass Timings' }} />
-      <Stack.Screen name={Routes.AdminFamilies} component={AdminFamiliesScreen} options={{ title: 'Families' }} />
-      <Stack.Screen name={Routes.AdminDonations} component={AdminDonationsScreen} options={{ title: 'Donations' }} />
-      <Stack.Screen name={Routes.AdminCertificates} component={AdminCertificatesScreen} options={{ title: 'Certificates' }} />
-      <Stack.Screen name={Routes.AdminTransfers} component={AdminTransfersScreen} options={{ title: 'Transfers' }} />
-      <Stack.Screen name={Routes.AdminAnnouncements} component={AdminAnnouncementsScreen} options={{ title: 'Announcements' }} />
+    // Each admin screen renders its own navy header (with back button),
+    // so the native stack header is hidden for the whole stack.
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name={Routes.AdminDashboard} component={AdminDashboardScreen} />
+      <Stack.Screen name={Routes.AdminMass} component={AdminMassScreen} />
+      <Stack.Screen name={Routes.AdminFamilies} component={AdminFamiliesScreen} />
+      <Stack.Screen name={Routes.AdminDonations} component={AdminDonationsScreen} />
+      <Stack.Screen name={Routes.AdminCertificates} component={AdminCertificatesScreen} />
+      <Stack.Screen name={Routes.AdminTransfers} component={AdminTransfersScreen} />
+      <Stack.Screen name={Routes.AdminAnnouncements} component={AdminAnnouncementsScreen} />
     </Stack.Navigator>
   );
 }

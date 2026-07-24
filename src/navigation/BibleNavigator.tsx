@@ -21,8 +21,8 @@ export default function BibleNavigator() {
         headerTitleStyle: { fontWeight: '600' },
       }}>
       <Stack.Screen name={Routes.BibleHome} component={BibleHomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name={Routes.BibleReader} component={BibleReaderScreen} options={{ title: 'Bible' }} />
-      <Stack.Screen name={Routes.DailyReading} component={DailyReadingScreen} options={{ title: "Today's Reading" }} />
+      <Stack.Screen name={Routes.BibleReader} component={BibleReaderScreen} options={{ headerShown: false }} />
+      <Stack.Screen name={Routes.DailyReading} component={DailyReadingScreen} options={{ headerShown: false }} />
       <Stack.Screen name={Routes.Bookmarks} component={BookmarksScreen} options={{ title: 'Bookmarks' }} />
       <Stack.Screen name={Routes.BibleNotes} component={BibleNotesScreen} options={{ title: 'Notes' }} />
     </Stack.Navigator>

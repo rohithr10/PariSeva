@@ -33,7 +33,7 @@
     "register": "Register",
     "register_title": "Create Family Account",
     "phone": "Mobile Number",
-    "phone_placeholder": "+91 Enter mobile number",
+    "phone_placeholder": "Enter mobile number",
     "password": "Password",
     "confirm_password": "Confirm Password",
     "forgot_password": "Forgot Password?",

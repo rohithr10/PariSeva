@@ -340,6 +340,31 @@ export interface TransferRequest {
   createdAt: string;
 }
 
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export type NotificationType =
+  | 'announcement'
+  | 'mass'
+  | 'donation'
+  | 'certificate'
+  | 'transfer'
+  | 'community'
+  | 'general';
+
+export interface AppNotification {
+  _id: string;
+  title: string;
+  titleTA?: string;
+  body: string;
+  bodyTA?: string;
+  type: NotificationType;
+  read: boolean;
+  /** ISO timestamp */
+  createdAt: string;
+  /** optional in-app route to open when tapped */
+  route?: string;
+}
+
 // ─── API ──────────────────────────────────────────────────────────────────────
 
 export interface ApiResponse<T> {

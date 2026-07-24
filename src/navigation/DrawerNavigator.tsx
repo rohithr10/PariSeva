@@ -11,6 +11,7 @@ import {
   createDrawerNavigator,
   DrawerContentScrollView,
 } from "@react-navigation/drawer";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../constants/colors";
 import { Spacing, Radius } from "../constants/spacing";
 import { Typography } from "../constants/typography";
@@ -22,6 +23,7 @@ import { selectUser, selectChurch } from "../store/slices/auth.slice";
 import type { DrawerParamList } from "./types";
 
 import TabNavigator from "./TabNavigator";
+import NotificationsScreen from "../screens/notifications/NotificationsScreen";
 import CommunityScreen from "../screens/community/CommunityScreen";
 import YouthClubScreen from "../screens/community/YouthClubScreen";
 import WomensClubScreen from "../screens/community/WomensClubScreen";
@@ -38,6 +40,7 @@ function DrawerContent({ navigation }: any) {
   const user = useAppSelector(selectUser);
   const church = useAppSelector(selectChurch);
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   const menuItems = [
     { label: t("nav.home"), icon: "home-variant-outline", route: "MainTabs" },
@@ -67,9 +70,18 @@ function DrawerContent({ navigation }: any) {
   ];
 
   return (
-    <DrawerContentScrollView style={styles.drawer}>
+    <DrawerContentScrollView
+      style={styles.drawer}
+      // Cancel the built-in safe-area padding so the header hugs the
+      // top/left/right edges; the header handles the status bar inset itself.
+      contentContainerStyle={{
+        paddingTop: 0,
+        paddingBottom: insets.bottom,
+        paddingStart: 0,
+        paddingEnd: 0,
+      }}>
       {/* Header */}
-      <View style={styles.drawerHeader}>
+      <View style={[styles.drawerHeader, { paddingTop: insets.top + Spacing.md }]}>
         <View style={styles.avatarCircle}>
           <Text style={styles.avatarText}>
             {user?.profile.firstName?.[0] ?? "U"}
@@ -125,6 +137,7 @@ export default function DrawerNavigator() {
       }}
     >
       <Drawer.Screen name="MainTabs" component={TabNavigator} />
+      <Drawer.Screen name={Routes.Notifications} component={NotificationsScreen} />
       <Drawer.Screen name={Routes.Community} component={CommunityScreen} />
       <Drawer.Screen name={Routes.YouthClub} component={YouthClubScreen} />
       <Drawer.Screen name={Routes.WomensClub} component={WomensClubScreen} />
@@ -155,8 +168,6 @@ const styles = StyleSheet.create({
   drawerHeader: {
     backgroundColor: Colors.primary.navy,
     padding: Spacing.lg,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.lg,
     alignItems: "center",
   },
   avatarCircle: {

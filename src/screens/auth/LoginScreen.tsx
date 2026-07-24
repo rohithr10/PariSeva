@@ -78,12 +78,19 @@ export default function LoginScreen({ navigation, route }: Props) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
 
-          {/* Navy gradient hero */}
-          <LinearGradient
-            colors={[Colors.primary.navyDark, Colors.primary.navy, Colors.primary.navyLight]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.hero}>
+          {/* Navy gradient hero. The gradient is an absolute-fill background:
+              padding on LinearGradient itself renders incorrectly on iOS (Fabric). */}
+          <View style={styles.hero}>
+            <LinearGradient
+              colors={[Colors.primary.navyDark, Colors.primary.navy, Colors.primary.navyLight]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            {/* Decorative circles for depth */}
+            <View style={[styles.heroCircle, styles.heroCircleLg]} />
+            <View style={[styles.heroCircle, styles.heroCircleSm]} />
+
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={8}>
               <MaterialCommunityIcons name="arrow-left" size={24} color={Colors.neutral.white} />
             </TouchableOpacity>
@@ -96,11 +103,13 @@ export default function LoginScreen({ navigation, route }: Props) {
 
             {church && (
               <View style={styles.churchBadge}>
-                <MaterialCommunityIcons name="map-marker-outline" size={13} color={Colors.accent.goldLight} />
-                <Text style={styles.churchBadgeText}>{church.name}</Text>
+                <MaterialCommunityIcons name="map-marker-outline" size={14} color={Colors.accent.goldLight} />
+                <Text style={styles.churchBadgeText} numberOfLines={1} ellipsizeMode="tail">
+                  {church.name}
+                </Text>
               </View>
             )}
-          </LinearGradient>
+          </View>
 
           {/* Floating form card */}
           <View style={styles.card}>
@@ -151,12 +160,20 @@ export default function LoginScreen({ navigation, route }: Props) {
 
           </View>
 
-          <View style={styles.registerRow}>
-            <Text style={styles.registerText}>{t('auth.new_user')} </Text>
-            <TouchableOpacity onPress={() => navigation.navigate(Routes.Register, { church })} hitSlop={8}>
-              <Text style={styles.registerLink}>{t('auth.create_account')}</Text>
-            </TouchableOpacity>
+          {/* Divider */}
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>{t('auth.new_user')}</Text>
+            <View style={styles.dividerLine} />
           </View>
+
+          <TouchableOpacity
+            style={styles.registerBtn}
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate(Routes.Register, { church })}>
+            <MaterialCommunityIcons name="account-plus-outline" size={20} color={Colors.accent.goldDark} />
+            <Text style={styles.registerLink}>{t('auth.create_account')}</Text>
+          </TouchableOpacity>
 
           {/* Language Toggle */}
           <View style={styles.langRow}>
@@ -191,7 +208,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 32,
     borderBottomRightRadius: 32,
     alignItems: 'center',
+    overflow: 'hidden',
   },
+  heroCircle: {
+    position: 'absolute',
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  heroCircleLg: { width: 220, height: 220, top: -80, right: -70 },
+  heroCircleSm: { width: 140, height: 140, bottom: -50, left: -40 },
   backBtn: { alignSelf: 'flex-start', paddingVertical: 4 },
   heroIconRing: {
     width: 72,
@@ -204,19 +229,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: Spacing.md,
   },
-  greeting: { fontSize: 26, fontWeight: '700', color: Colors.neutral.white, marginBottom: 4 },
-  subtitle: { fontSize: 14, color: Colors.sky.blueLight },
+  greeting: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: Colors.neutral.white,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  subtitle: { fontSize: 14, color: Colors.sky.blueLight, textAlign: 'center' },
   churchBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
+    maxWidth: '88%',
     backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
     borderRadius: Radius.full,
     paddingHorizontal: Spacing.md,
-    paddingVertical: 5,
+    paddingVertical: 6,
     marginTop: Spacing.md,
   },
-  churchBadgeText: { color: Colors.neutral.white, fontSize: 12, fontWeight: '500' },
+  churchBadgeText: {
+    flexShrink: 1,
+    color: Colors.neutral.white,
+    fontSize: 13,
+    fontWeight: '600',
+  },
 
   card: {
     backgroundColor: Colors.neutral.white,
@@ -234,9 +273,30 @@ const styles = StyleSheet.create({
   },
   forgotRow: { alignItems: 'flex-end', marginBottom: Spacing.lg, marginTop: -Spacing.xs },
   forgotText: { color: Colors.sky.blue, fontSize: 13, fontWeight: '500' },
-  registerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.lg },
-  registerText: { color: Colors.neutral.gray500, fontSize: 14 },
-  registerLink: { color: Colors.accent.goldDark, fontWeight: '700', fontSize: 14 },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.lg,
+    marginHorizontal: Spacing.screen,
+  },
+  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.neutral.gray200 },
+  dividerText: { color: Colors.neutral.gray400, fontSize: 13 },
+  registerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+    marginHorizontal: Spacing.screen,
+    height: 56,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: Radius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.accent.gold,
+    backgroundColor: Colors.accent.goldPale,
+  },
+  registerLink: { color: Colors.accent.goldDark, fontWeight: '700', fontSize: 17 },
 
   langRow: {
     flexDirection: 'row',

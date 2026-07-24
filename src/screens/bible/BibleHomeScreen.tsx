@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,21 @@ import {
   StatusBar,
   TextInput,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 import { Colors } from "../../constants/colors";
 import { Spacing, Radius, Shadow } from "../../constants/spacing";
 import { Routes } from "../../constants/routes";
+import {
+  NT_BOOK_IDS,
+  DEUTEROCANONICAL_BOOKS,
+  translationFor,
+} from "../../constants/bible";
+import { useBibleBooks } from "../../hooks/useBible";
+import { useDailyMeta, useReadingTexts } from "../../hooks/useDailyReadings";
+import type { AppLanguage } from "../../i18n";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopSafeArea from "../../components/common/TopSafeArea/TopSafeArea";
@@ -20,94 +30,62 @@ import TopSafeArea from "../../components/common/TopSafeArea/TopSafeArea";
 const CARD_WIDTH =
   (Dimensions.get("window").width - Spacing.screen * 2 - Spacing.xs * 2) / 3;
 
-const BOOKS_OLD_TESTAMENT = [
-  "Genesis",
-  "Exodus",
-  "Leviticus",
-  "Numbers",
-  "Deuteronomy",
-  "Joshua",
-  "Judges",
-  "Ruth",
-  "1 Samuel",
-  "2 Samuel",
-  "1 Kings",
-  "2 Kings",
-  "1 Chronicles",
-  "2 Chronicles",
-  "Ezra",
-  "Nehemiah",
-  "Tobit",
-  "Judith",
-  "Esther",
-  "1 Maccabees",
-  "2 Maccabees",
-  "Job",
-  "Psalms",
-  "Proverbs",
-  "Ecclesiastes",
-  "Song of Songs",
-  "Wisdom",
-  "Sirach",
-  "Isaiah",
-  "Jeremiah",
-  "Lamentations",
-  "Baruch",
-  "Ezekiel",
-  "Daniel",
-  "Hosea",
-  "Joel",
-  "Amos",
-  "Obadiah",
-  "Jonah",
-  "Micah",
-  "Nahum",
-  "Habakkuk",
-  "Zephaniah",
-  "Haggai",
-  "Zechariah",
-  "Malachi",
-];
-
-const BOOKS_NEW_TESTAMENT = [
-  "Matthew",
-  "Mark",
-  "Luke",
-  "John",
-  "Acts",
-  "Romans",
-  "1 Corinthians",
-  "2 Corinthians",
-  "Galatians",
-  "Ephesians",
-  "Philippians",
-  "Colossians",
-  "1 Thessalonians",
-  "2 Thessalonians",
-  "1 Timothy",
-  "2 Timothy",
-  "Titus",
-  "Philemon",
-  "Hebrews",
-  "James",
-  "1 Peter",
-  "2 Peter",
-  "1 John",
-  "2 John",
-  "3 John",
-  "Jude",
-  "Revelation",
-];
+const TRANSLATION_LABEL: Record<AppLanguage, string> = {
+  en: "Berean Standard Bible",
+  ta: "தமிழ் திருத்தப்பட்ட பதிப்பு (IRV)",
+};
 
 export default function BibleHomeScreen() {
   const navigation = useNavigation<any>();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.language as AppLanguage) ?? "en";
+
   const [tab, setTab] = useState<"OT" | "NT">("OT");
   const [search, setSearch] = useState("");
 
-  const books = tab === "OT" ? BOOKS_OLD_TESTAMENT : BOOKS_NEW_TESTAMENT;
-  const filtered = search
-    ? books.filter((b) => b.toLowerCase().includes(search.toLowerCase()))
-    : books;
+  const { data: books, isLoading, isError, refetch } = useBibleBooks(lang);
+
+  // Today's real lectionary reading for the banner.
+  const today = useMemo(() => new Date(), []);
+  const dailyMeta = useDailyMeta(today);
+  const firstRef = dailyMeta.data?.readings.find((r) => r.type === "first");
+  const gospelRef = dailyMeta.data?.readings.find((r) => r.type === "gospel");
+  const dailyText = useReadingTexts(
+    firstRef ? [firstRef] : undefined,
+    lang,
+    today.toISOString().slice(0, 10),
+    !!firstRef,
+  );
+  const bannerRefs = [firstRef?.reference, gospelRef?.reference]
+    .filter(Boolean)
+    .join(" · ");
+  const bannerPreview = dailyText.data?.first?.text;
+
+  const { otBooks, ntBooks } = useMemo(() => {
+    const ot = (books ?? []).filter((b) => !NT_BOOK_IDS.has(b.id));
+    const nt = (books ?? []).filter((b) => NT_BOOK_IDS.has(b.id));
+    return { otBooks: ot, ntBooks: nt };
+  }, [books]);
+
+  const activeBooks = tab === "OT" ? otBooks : ntBooks;
+  const q = search.trim().toLowerCase();
+  const filtered = q
+    ? activeBooks.filter((b) => b.name.toLowerCase().includes(q))
+    : activeBooks;
+
+  // Deuterocanonical books aren't in the free translation — show them disabled
+  // in the OT tab so the Catholic canon is still represented.
+  const showDeutero = tab === "OT" && !q;
+  const deuteroLabel = (b: { name: string; nameTA: string }) =>
+    lang === "ta" ? b.nameTA : b.name;
+
+  const openBook = (bookId: string, name: string, numberOfChapters: number) =>
+    navigation.navigate(Routes.BibleReader, {
+      book: name,
+      bookId,
+      chapter: 1,
+      numberOfChapters,
+    });
 
   return (
     <SafeAreaView style={styles.container} edges={["left", "right"]}>
@@ -118,8 +96,8 @@ export default function BibleHomeScreen() {
       />
 
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Holy Bible</Text>
-        <Text style={styles.headerSub}>Catholic Edition (RSVCE)</Text>
+        <Text style={styles.headerTitle}>{t("bible.title", "Holy Bible")}</Text>
+        <Text style={styles.headerSub}>{TRANSLATION_LABEL[lang]}</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -129,11 +107,14 @@ export default function BibleHomeScreen() {
           onPress={() => navigation.navigate(Routes.DailyReading)}
         >
           <View style={styles.dailyLeft}>
-            <Text style={styles.dailyLabel}>TODAY'S READING</Text>
-            <Text style={styles.dailyRef}>Isaiah 61:1–3 · John 17:1–11</Text>
+            <Text style={styles.dailyLabel}>
+              {t("bible.todays_reading", "TODAY'S READING")}
+            </Text>
+            <Text style={styles.dailyRef}>
+              {bannerRefs || (dailyMeta.isLoading ? "Loading…" : "Tap to read")}
+            </Text>
             <Text style={styles.dailyPreview} numberOfLines={2}>
-              "The Spirit of the Lord is upon me, for He has anointed me to
-              bring Good News to the poor..."
+              {bannerPreview ?? dailyMeta.data?.feastName ?? " "}
             </Text>
           </View>
           <MaterialCommunityIcons
@@ -152,18 +133,39 @@ export default function BibleHomeScreen() {
               name="bookmark-outline"
               style={styles.quickIcon}
             />
-            <Text style={styles.quickLabel}>Bookmarks</Text>
+            <Text style={styles.quickLabel}>
+              {t("bible.bookmarks", "Bookmarks")}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickCard}>
-            <MaterialCommunityIcons name="magnify" style={styles.quickIcon} />
-            <Text style={styles.quickLabel}>Search</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.quickCard}>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={() =>
+              ntBooks[3] &&
+              openBook("JHN", ntBooks[3].name, ntBooks[3].numberOfChapters)
+            }
+          >
             <MaterialCommunityIcons
               name="book-open-page-variant-outline"
               style={styles.quickIcon}
             />
-            <Text style={styles.quickLabel}>Continue</Text>
+            <Text style={styles.quickLabel}>{t("bible.gospels", "Gospels")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.quickCard}
+            onPress={() =>
+              otBooks.find((b) => b.id === "PSA") &&
+              openBook(
+                "PSA",
+                otBooks.find((b) => b.id === "PSA")!.name,
+                otBooks.find((b) => b.id === "PSA")!.numberOfChapters,
+              )
+            }
+          >
+            <MaterialCommunityIcons
+              name="music-clef-treble"
+              style={styles.quickIcon}
+            />
+            <Text style={styles.quickLabel}>{t("bible.psalms", "Psalms")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -174,48 +176,90 @@ export default function BibleHomeScreen() {
             style={styles.searchInput}
             value={search}
             onChangeText={setSearch}
-            placeholder="Search book..."
+            placeholder={t("bible.search_book", "Search book...")}
             placeholderTextColor={Colors.neutral.gray400}
           />
         </View>
 
         {/* OT / NT Toggle */}
         <View style={styles.tabRow}>
-          {(["OT", "NT"] as const).map((t) => (
+          {(["OT", "NT"] as const).map((tb) => (
             <TouchableOpacity
-              key={t}
-              style={[styles.tab, tab === t && styles.tabActive]}
-              onPress={() => setTab(t)}
+              key={tb}
+              style={[styles.tab, tab === tb && styles.tabActive]}
+              onPress={() => setTab(tb)}
             >
-              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === "OT" ? "Old Testament" : "New Testament"}
+              <Text style={[styles.tabText, tab === tb && styles.tabTextActive]}>
+                {tb === "OT"
+                  ? t("bible.old_testament", "Old Testament")
+                  : t("bible.new_testament", "New Testament")}
               </Text>
               <Text
-                style={[styles.tabCount, tab === t && styles.tabTextActive]}
+                style={[styles.tabCount, tab === tb && styles.tabTextActive]}
               >
-                {t === "OT" ? "46 books" : "27 books"}
+                {tb === "OT"
+                  ? `${otBooks.length}${showDeutero ? "+7" : ""} books`
+                  : `${ntBooks.length} books`}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Book Grid */}
-        <View style={styles.bookGrid}>
-          {filtered.map((book, i) => (
-            <TouchableOpacity
-              key={i}
-              style={styles.bookCard}
-              onPress={() =>
-                navigation.navigate(Routes.BibleReader, { book, chapter: 1 })
-              }
-            >
-              {/* <Text style={styles.bookNum}>{i + 1}</Text> */}
-              <Text style={styles.bookName} numberOfLines={2}>
-                {book}
-              </Text>
+        {/* States */}
+        {isLoading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={Colors.accent.gold} />
+            <Text style={styles.stateText}>Loading books…</Text>
+          </View>
+        ) : isError ? (
+          <View style={styles.center}>
+            <MaterialCommunityIcons
+              name="wifi-off"
+              size={40}
+              color={Colors.neutral.gray400}
+            />
+            <Text style={styles.stateText}>Couldn't load the Bible.</Text>
+            <TouchableOpacity style={styles.retryBtn} onPress={() => refetch()}>
+              <Text style={styles.retryText}>Retry</Text>
             </TouchableOpacity>
-          ))}
-        </View>
+          </View>
+        ) : (
+          <View style={styles.bookGrid}>
+            {filtered.map((book) => (
+              <TouchableOpacity
+                key={book.id}
+                style={styles.bookCard}
+                onPress={() =>
+                  openBook(book.id, book.name, book.numberOfChapters)
+                }
+              >
+                <Text style={styles.bookName} numberOfLines={2}>
+                  {book.name}
+                </Text>
+                <Text style={styles.bookChapters}>
+                  {book.numberOfChapters} ch
+                </Text>
+              </TouchableOpacity>
+            ))}
+
+            {/* Deuterocanonical books — not in the free translation yet */}
+            {showDeutero &&
+              DEUTEROCANONICAL_BOOKS.map((book) => (
+                <View
+                  key={book.name}
+                  style={[styles.bookCard, styles.bookCardDisabled]}
+                >
+                  <Text
+                    style={[styles.bookName, styles.bookNameDisabled]}
+                    numberOfLines={2}
+                  >
+                    {deuteroLabel(book)}
+                  </Text>
+                  <Text style={styles.soonBadge}>soon</Text>
+                </View>
+              ))}
+          </View>
+        )}
 
         <View style={{ height: 32 }} />
       </ScrollView>
@@ -336,6 +380,21 @@ const styles = StyleSheet.create({
   tabTextActive: { color: Colors.neutral.white },
   tabCount: { fontSize: 11, color: Colors.neutral.gray400, marginTop: 2 },
 
+  center: { alignItems: "center", justifyContent: "center", paddingVertical: 48 },
+  stateText: {
+    marginTop: Spacing.sm,
+    color: Colors.neutral.gray500,
+    fontSize: 14,
+  },
+  retryBtn: {
+    marginTop: Spacing.md,
+    backgroundColor: Colors.accent.gold,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.full,
+  },
+  retryText: { color: Colors.neutral.white, fontWeight: "700" },
+
   bookGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -349,14 +408,32 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 64,
+    minHeight: 68,
     ...Shadow.sm,
   },
-  bookNum: { fontSize: 10, color: Colors.neutral.gray400, marginBottom: 4 },
+  bookCardDisabled: {
+    backgroundColor: Colors.neutral.gray100,
+    ...Shadow.sm,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
   bookName: {
     fontSize: 12,
     fontWeight: "600",
     color: Colors.primary.navy,
     textAlign: "center",
+  },
+  bookNameDisabled: { color: Colors.neutral.gray400 },
+  bookChapters: {
+    fontSize: 10,
+    color: Colors.neutral.gray400,
+    marginTop: 3,
+  },
+  soonBadge: {
+    fontSize: 9,
+    color: Colors.accent.goldDark,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    marginTop: 3,
   },
 });

@@ -20,6 +20,9 @@ import { useAppSelector } from "../../hooks/useAppDispatch";
 import { selectUser, selectChurch } from "../../store/slices/auth.slice";
 import { selectAnnouncements } from "../../store/slices/church.slice";
 import { selectDonationSummary } from "../../store/slices/donation.slice";
+import { useNotifications } from "../../hooks/useNotifications";
+import { useDailyMeta, useReadingTexts } from "../../hooks/useDailyReadings";
+import type { AppLanguage } from "../../i18n";
 import type { Announcement } from "../../types";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopSafeArea from "../../components/common/TopSafeArea/TopSafeArea";
@@ -74,11 +77,25 @@ function getGreetingKey() {
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const user = useAppSelector(selectUser);
   const church = useAppSelector(selectChurch);
   const announcements = useAppSelector(selectAnnouncements);
   const donationSummary = useAppSelector(selectDonationSummary);
+  const { unreadCount } = useNotifications();
+
+  // Today's first reading (reference + text preview) from the real lectionary.
+  const lang = (i18n.language as AppLanguage) ?? "en";
+  const today = React.useMemo(() => new Date(), []);
+  const dailyMeta = useDailyMeta(today);
+  const firstReadingRef = dailyMeta.data?.readings.find((r) => r.type === "first");
+  const dailyText = useReadingTexts(
+    firstReadingRef ? [firstReadingRef] : undefined,
+    lang,
+    today.toISOString().slice(0, 10),
+    !!firstReadingRef,
+  );
+  const firstReadingText = dailyText.data?.first?.text;
 
   const displayAnnouncements =
     announcements.length > 0 ? announcements : MOCK_ANNOUNCEMENTS;
@@ -115,15 +132,21 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.notifBtn}>
+        <TouchableOpacity
+          style={styles.notifBtn}
+          onPress={() => navigation.navigate(Routes.Notifications)}>
           <MaterialCommunityIcons
             name="bell-outline"
             size={24}
             color={Colors.neutral.white}
           />
-          <View style={styles.notifBadge}>
-            <Text style={styles.notifBadgeText}>3</Text>
-          </View>
+          {unreadCount > 0 && (
+            <View style={styles.notifBadge}>
+              <Text style={styles.notifBadgeText}>
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -205,7 +228,9 @@ export default function HomeScreen() {
         {/* Daily Reading */}
         <TouchableOpacity
           style={styles.readingCard}
-          onPress={() => navigation.navigate(Routes.BibleTab)}
+          onPress={() =>
+            navigation.navigate(Routes.BibleTab, { screen: Routes.DailyReading })
+          }
         >
           <View style={styles.cardLabelRow}>
             <MaterialCommunityIcons
@@ -215,10 +240,15 @@ export default function HomeScreen() {
             />
             <Text style={styles.readingLabel}>{t("home.daily_reading")}</Text>
           </View>
-          <Text style={styles.readingRef}>First Reading: Isaiah 61:1–3</Text>
+          <Text style={styles.readingRef}>
+            {firstReadingRef
+              ? `First Reading: ${firstReadingRef.reference}`
+              : dailyMeta.isLoading
+              ? "Loading today's reading…"
+              : "Today's Reading"}
+          </Text>
           <Text style={styles.readingPreview} numberOfLines={2}>
-            "The Spirit of the Lord is upon me, for He has anointed me to bring
-            Good News to the poor..."
+            {firstReadingText ?? dailyMeta.data?.feastName ?? " "}
           </Text>
           <View style={styles.readMoreRow}>
             <Text style={styles.readMore}>{t("home.read_more")}</Text>

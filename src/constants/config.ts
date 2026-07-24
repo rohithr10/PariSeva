@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 
-const PROD_API = "https://api.pariseva.in/v1";
+const PROD_API = "https://myholynest-backend.onrender.com/v1";
 
 /**
  * Base URL resolution:
@@ -14,8 +14,11 @@ const DEV_API_HOST = "172.16.4.151";
 
 const DEV_API = `http://${DEV_API_HOST}:4000/v1`;
 
+// Set to true to point debug builds at the local DEV_API instead of the hosted API.
+const USE_LOCAL_API_IN_DEV = false;
+
 export const Config = {
-  API_BASE_URL: __DEV__ ? DEV_API : PROD_API,
+  API_BASE_URL: __DEV__ && USE_LOCAL_API_IN_DEV ? DEV_API : PROD_API,
   APP_NAME: "My Holy Nest",
   APP_VERSION: "1.0.0",
   RAZORPAY_KEY: "rzp_test_XXXXXXXXXXXXXX",

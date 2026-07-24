@@ -40,6 +40,16 @@ export default function TabNavigator() {
         name={Routes.BibleTab}
         component={BibleNavigator}
         options={{ tabBarLabel: t('nav.bible') }}
+        // Pressing the Bible tab button always lands on the book list, even if
+        // Home deep-linked into Daily Reading (which persists in this stack).
+        // preventDefault stops the tab bar's own navigate from restoring the
+        // remembered (Daily Reading) screen after this runs.
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            e.preventDefault();
+            navigation.navigate(Routes.BibleTab, { screen: Routes.BibleHome });
+          },
+        })}
       />
       <Tab.Screen
         name={Routes.GiveTab}
