@@ -7,8 +7,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Colors } from '../../constants/colors';
 import { Spacing, Radius, Shadow } from '../../constants/spacing';
-import { otherLanguage } from '../../constants/bible';
 import { useDailyMeta, useReadingTexts } from '../../hooks/useDailyReadings';
+import { useBibleTheme } from '../../hooks/useBibleTheme';
+import { BibleControls } from '../../components/common/BibleControls/BibleControls';
 import type { AppLanguage } from '../../i18n';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,25 +19,21 @@ export default function DailyReadingScreen() {
   const navigation = useNavigation<any>();
   const { i18n } = useTranslation();
   const lang = (i18n.language as AppLanguage) ?? 'en';
-  const parallelLang = otherLanguage(lang);
+  const { theme } = useBibleTheme();
 
   const today = useMemo(() => new Date(), []);
   const dateKey = today.toISOString().slice(0, 10);
 
-  const [showParallel, setShowParallel] = useState(false);
   const [expandedIdx, setExpandedIdx] = useState(0);
 
   const meta = useDailyMeta(today);
+  // Readings are fetched in the app language only. Switching language with the
+  // header toggle re-fetches them, rather than showing English and Tamil together.
   const primary = useReadingTexts(meta.data?.readings, lang, dateKey, !!meta.data);
-  const parallel = useReadingTexts(
-    meta.data?.readings, parallelLang, dateKey, !!meta.data && showParallel,
-  );
 
   const dateLabel = today.toLocaleDateString(lang === 'ta' ? 'ta-IN' : 'en-GB', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
-  const parallelLabel = parallelLang === 'ta' ? 'த' : 'A';
-
   const shareReadings = async () => {
     if (!meta.data) return;
     const lines = meta.data.readings.map(r => `${r.label}: ${r.reference}`).join('\n');
@@ -46,29 +43,33 @@ export default function DailyReadingScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right']}>
-      <TopSafeArea color={Colors.primary.navy} />
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary.navyDark} />
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.bg }]}
+      edges={['left', 'right']}>
+      <TopSafeArea color={theme.headerBg} />
+      <StatusBar barStyle="light-content" backgroundColor={theme.headerBg} />
 
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: theme.headerBg }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
           <MaterialCommunityIcons name="arrow-left" style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Daily Reading</Text>
-        <TouchableOpacity onPress={() => setShowParallel(t => !t)} style={styles.langBtn} hitSlop={8}>
-          <Text style={[styles.langBtnText, showParallel && styles.langBtnActive]}>{parallelLabel}</Text>
-        </TouchableOpacity>
+        <BibleControls variant="onDark" />
       </View>
 
       {meta.isLoading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={Colors.accent.gold} />
-          <Text style={styles.stateText}>Loading today's readings…</Text>
+          <Text style={[styles.stateText, { color: theme.textMuted }]}>
+            Loading today's readings…
+          </Text>
         </View>
       ) : meta.isError ? (
         <View style={styles.center}>
           <MaterialCommunityIcons name="calendar-alert" size={40} color={Colors.neutral.gray400} />
-          <Text style={styles.stateText}>Readings aren't available right now.</Text>
+          <Text style={[styles.stateText, { color: theme.textMuted }]}>
+            Readings aren't available right now.
+          </Text>
           <TouchableOpacity style={styles.retryBtn} onPress={() => meta.refetch()}>
             <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
@@ -89,22 +90,31 @@ export default function DailyReadingScreen() {
           {/* Readings */}
           {meta.data?.readings.map((r, i) => {
             const primaryText = primary.data?.[r.type];
-            const parallelText = parallel.data?.[r.type];
             const expanded = i === expandedIdx;
             return (
               <TouchableOpacity
                 key={r.type}
-                style={[styles.readingCard, expanded && styles.readingCardExpanded]}
+                style={[
+                  styles.readingCard,
+                  { backgroundColor: theme.surface },
+                  expanded && styles.readingCardExpanded,
+                ]}
                 onPress={() => setExpandedIdx(expanded ? -1 : i)}
                 activeOpacity={0.9}>
                 <View style={styles.readingHeader}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.readingLabel}>{r.label}</Text>
-                    <Text style={styles.readingRef}>{r.reference}</Text>
+                    <Text
+                      style={[
+                        styles.readingRef,
+                        { color: theme.dark ? theme.text : Colors.primary.navy },
+                      ]}>
+                      {r.reference}
+                    </Text>
                   </View>
                   <MaterialCommunityIcons
                     name={expanded ? 'chevron-up' : 'chevron-down'}
-                    style={styles.expandIcon}
+                    style={[styles.expandIcon, { color: theme.textMuted }]}
                   />
                 </View>
 
@@ -113,20 +123,18 @@ export default function DailyReadingScreen() {
                     {primary.isLoading ? (
                       <ActivityIndicator color={Colors.accent.gold} style={{ marginTop: Spacing.md }} />
                     ) : primaryText?.available ? (
-                      <Text style={styles.readingText}>{primaryText.text}</Text>
+                      <Text
+                        style={[
+                          styles.readingText,
+                          { color: theme.dark ? theme.text : Colors.neutral.gray700 },
+                        ]}>
+                        {primaryText.text}
+                      </Text>
                     ) : (
-                      <Text style={styles.unavailable}>
+                      <Text style={[styles.unavailable, { color: theme.textMuted }]}>
                         This passage isn't in the free {lang === 'ta' ? 'Tamil' : 'English'} translation
                         {' '}(deuterocanonical). Reference above.
                       </Text>
-                    )}
-
-                    {showParallel && (
-                      parallel.isLoading ? (
-                        <Text style={styles.parallelText}>…</Text>
-                      ) : parallelText?.available ? (
-                        <Text style={styles.parallelText}>{parallelText.text}</Text>
-                      ) : null
                     )}
                   </View>
                 )}
@@ -136,28 +144,37 @@ export default function DailyReadingScreen() {
 
           {/* Thought for the day (feast quote) */}
           {!!meta.data?.feastQuote && (
-            <View style={styles.reflectionCard}>
-              <Text style={styles.reflectionTitle}>Thought for the Day</Text>
-              <Text style={styles.reflectionText}>"{meta.data.feastQuote}"</Text>
+            <View
+              style={[
+                styles.reflectionCard,
+                theme.dark && { backgroundColor: theme.surface },
+              ]}>
+              <Text
+                style={[
+                  styles.reflectionTitle,
+                  theme.dark && { color: theme.text },
+                ]}>
+                Thought for the Day
+              </Text>
+              <Text
+                style={[
+                  styles.reflectionText,
+                  theme.dark && { color: theme.textMuted },
+                ]}>
+                "{meta.data.feastQuote}"
+              </Text>
             </View>
           )}
 
           {/* Actions */}
           <View style={styles.actionsRow}>
             <TouchableOpacity style={styles.actionBtn} onPress={shareReadings}>
-              <MaterialCommunityIcons name="share-variant-outline" style={styles.actionIcon} />
-              <Text style={styles.actionText}>Share</Text>
+              <MaterialCommunityIcons
+                name="share-variant-outline"
+                style={[styles.actionIcon, { color: theme.accent }]}
+              />
+              <Text style={[styles.actionText, { color: theme.textMuted }]}>Share</Text>
             </TouchableOpacity>
-            {!!meta.data?.usccbLink && (
-              <TouchableOpacity
-                style={styles.actionBtn}
-                onPress={() => setShowParallel(t => !t)}>
-                <MaterialCommunityIcons name="translate" style={styles.actionIcon} />
-                <Text style={styles.actionText}>
-                  {parallelLang === 'ta' ? 'தமிழ்' : 'English'}
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
 
           <View style={{ height: 32 }} />
@@ -179,9 +196,6 @@ const styles = StyleSheet.create({
   },
   backIcon: { color: Colors.neutral.white, fontSize: 22 },
   headerTitle: { color: Colors.neutral.white, fontSize: 18, fontWeight: '700' },
-  langBtn: { padding: 4, minWidth: 28, alignItems: 'center' },
-  langBtnText: { fontSize: 18, fontWeight: '700', color: Colors.neutral.white, opacity: 0.6 },
-  langBtnActive: { color: Colors.accent.gold, opacity: 1 },
 
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl },
   stateText: { marginTop: Spacing.md, color: Colors.neutral.gray500, fontSize: 14, textAlign: 'center' },
@@ -218,16 +232,6 @@ const styles = StyleSheet.create({
   expandIcon: { fontSize: 18, color: Colors.neutral.gray400, marginLeft: Spacing.sm },
   readingBody: { marginTop: Spacing.md },
   readingText: { fontSize: 15, lineHeight: 26, color: Colors.neutral.gray700 },
-  parallelText: {
-    fontSize: 14,
-    lineHeight: 25,
-    color: Colors.neutral.gray500,
-    fontStyle: 'italic',
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: Colors.neutral.gray100,
-  },
   unavailable: {
     fontSize: 13,
     lineHeight: 20,

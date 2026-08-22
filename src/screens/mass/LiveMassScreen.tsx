@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, StatusBar,
-  TouchableOpacity, ScrollView, Dimensions,
+  TouchableOpacity, ScrollView, Dimensions, Share, Alert,
 } from 'react-native';
 import WebView from 'react-native-webview';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -30,6 +30,30 @@ export default function LiveMassScreen({ navigation, route }: Props) {
   const [isLiked, setIsLiked] = useState(false);
 
   const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+  const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+  const shareStream = useCallback(async () => {
+    try {
+      await Share.share({
+        message: `${title} — live now from St. Mary's Basilica.\nWatch: ${watchUrl}\n\n— Shared via My Holy Nest`,
+        url: watchUrl,
+        title,
+      });
+    } catch {
+      Alert.alert('Share failed', "The live stream couldn't be shared right now.");
+    }
+  }, [title, watchUrl]);
+
+  // The Give tab is a sibling of the Mass stack, so the offering screen is
+  // reached through the parent tab navigator.
+  const openDonate = useCallback(() => {
+    const parent = navigation.getParent();
+    const target = parent ?? navigation;
+    (target as any).navigate(Routes.GiveTab, {
+      screen: Routes.MakeOffering,
+      params: { offeringType: 'Mass Offering' },
+    });
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
@@ -48,7 +72,7 @@ export default function LiveMassScreen({ navigation, route }: Props) {
           </View>
           <Text style={styles.headerTitle} numberOfLines={1}>{title}</Text>
         </View>
-        <TouchableOpacity style={styles.shareBtn}>
+        <TouchableOpacity style={styles.shareBtn} onPress={shareStream} hitSlop={8}>
           <MaterialCommunityIcons name="share-variant-outline" size={20} color={Colors.neutral.white} />
         </TouchableOpacity>
       </View>
@@ -92,11 +116,11 @@ export default function LiveMassScreen({ navigation, route }: Props) {
                 {isLiked ? 'Praying' : 'Pray'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity style={styles.actionBtn} onPress={shareStream}>
               <MaterialCommunityIcons name="share-variant-outline" size={18} color={Colors.neutral.gray600} />
               <Text style={styles.actionBtnText}>Share</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionBtn}>
+            <TouchableOpacity style={styles.actionBtn} onPress={openDonate}>
               <MaterialCommunityIcons name="hand-heart-outline" size={18} color={Colors.neutral.gray600} />
               <Text style={styles.actionBtnText}>Donate</Text>
             </TouchableOpacity>

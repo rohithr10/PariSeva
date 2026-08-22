@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { Church, MassTiming, LiveStream, Announcement } from '../../types';
+import { SEED_ANNOUNCEMENTS } from '../../constants/announcements';
 
 interface ChurchState {
   churches: Church[];
@@ -15,7 +16,7 @@ const initialState: ChurchState = {
   selectedChurch: null,
   massTimings: [],
   liveStream: null,
-  announcements: [],
+  announcements: SEED_ANNOUNCEMENTS,
   loading: false,
 };
 
@@ -38,6 +39,15 @@ const churchSlice = createSlice({
     setAnnouncements: (state, action: PayloadAction<Announcement[]>) => {
       state.announcements = action.payload;
     },
+    /** Publishes an announcement so Home / Announcements pick it up immediately. */
+    addAnnouncement: (state, action: PayloadAction<Announcement>) => {
+      state.announcements = [action.payload, ...state.announcements];
+    },
+    removeAnnouncement: (state, action: PayloadAction<string>) => {
+      state.announcements = state.announcements.filter(
+        a => a._id !== action.payload,
+      );
+    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
@@ -50,6 +60,8 @@ export const {
   setMassTimings,
   setLiveStream,
   setAnnouncements,
+  addAnnouncement,
+  removeAnnouncement,
   setLoading,
 } = churchSlice.actions;
 

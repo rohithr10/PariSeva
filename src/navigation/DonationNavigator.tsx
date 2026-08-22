@@ -21,9 +21,10 @@ export default function DonationNavigator() {
         headerTitleStyle: { fontWeight: '600' },
       }}>
       <Stack.Screen name={Routes.DonationHome} component={DonationHomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name={Routes.MakeOffering} component={MakeOfferingScreen} options={{ title: 'Make an Offering' }} />
-      <Stack.Screen name={Routes.Subscription} component={SubscriptionScreen} options={{ title: 'Monthly Subscription' }} />
-      <Stack.Screen name={Routes.DonationHistory} component={DonationHistoryScreen} options={{ title: 'Donation History' }} />
+      {/* These draw their own header, so the native one stays hidden. */}
+      <Stack.Screen name={Routes.MakeOffering} component={MakeOfferingScreen} options={{ headerShown: false }} />
+      <Stack.Screen name={Routes.Subscription} component={SubscriptionScreen} options={{ headerShown: false }} />
+      <Stack.Screen name={Routes.DonationHistory} component={DonationHistoryScreen} options={{ headerShown: false }} />
       <Stack.Screen name={Routes.DonationReceipt} component={DonationReceiptScreen} options={{ title: 'Receipt' }} />
     </Stack.Navigator>
   );

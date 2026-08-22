@@ -10,19 +10,39 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
 
+/**
+ * `route: 'subscription'` opens the recurring-giving setup; everything else
+ * goes to the one-off offering screen. `Donation` additionally asks for a
+ * cause there, so the giver can name what the money is for.
+ */
 const OFFERING_TYPES = [
-  { icon: 'flower-outline', name: 'Sunday Offering', nameTA: 'ஞாயிறு காணிக்கை', desc: 'Regular weekly collection' },
-  { icon: 'candle', name: 'Candle Offering', nameTA: 'மெழுகுவர்த்தி காணிக்கை', desc: 'Light a candle for intentions' },
-  { icon: 'church', name: 'Church Maintenance', nameTA: 'தேவாலய பராமரிப்பு', desc: 'Help maintain our parish' },
-  { icon: 'book-multiple-outline', name: 'Education Fund', nameTA: 'கல்வி நிதி', desc: 'Support parish school' },
-  { icon: 'account-heart-outline', name: 'Poor Fund', nameTA: 'ஏழை நிதி', desc: 'Help the needy in our parish' },
-  { icon: 'party-popper', name: 'Feast Fund', nameTA: 'திருவிழா நிதி', desc: 'Support parish feasts' },
+  {
+    icon: 'calendar-sync-outline',
+    name: 'Monthly Subscription',
+    nameTA: 'மாத சந்தா',
+    desc: 'Give automatically every month',
+    route: 'subscription' as const,
+  },
+  {
+    icon: 'church',
+    name: 'Mass Offering',
+    nameTA: 'திருப்பலி காணிக்கை',
+    desc: 'Offer a Mass for your intentions',
+    route: 'offering' as const,
+  },
+  {
+    icon: 'hand-heart-outline',
+    name: 'Donation',
+    nameTA: 'நன்கொடை',
+    desc: 'Give towards a cause of your choice',
+    route: 'offering' as const,
+  },
 ];
 
 const RECENT_DONATIONS = [
-  { id: 'd1', type: 'Sunday Offering', amount: 500, date: 'Jun 1, 2026', status: 'completed' },
-  { id: 'd2', type: 'Candle Offering', amount: 200, date: 'May 25, 2026', status: 'completed' },
-  { id: 'd3', type: 'Church Maintenance', amount: 1000, date: 'May 15, 2026', status: 'completed' },
+  { id: 'd1', type: 'Monthly Subscription', amount: 500, date: 'Jun 1, 2026', status: 'completed' },
+  { id: 'd2', type: 'Mass Offering', amount: 200, date: 'May 25, 2026', status: 'completed' },
+  { id: 'd3', type: 'Donation', amount: 1000, date: 'May 15, 2026', status: 'completed' },
 ];
 
 export default function DonationHomeScreen() {
@@ -72,7 +92,11 @@ export default function DonationHomeScreen() {
             <TouchableOpacity
               key={i}
               style={styles.offeringCard}
-              onPress={() => navigation.navigate(Routes.MakeOffering, { offeringType: ot.name })}>
+              onPress={() =>
+                ot.route === 'subscription'
+                  ? navigation.navigate(Routes.Subscription)
+                  : navigation.navigate(Routes.MakeOffering, { offeringType: ot.name })
+              }>
               <MaterialCommunityIcons name={ot.icon} style={styles.offeringIcon} />
               <Text style={styles.offeringName}>{ot.name}</Text>
               <Text style={styles.offeringNameTA}>{ot.nameTA}</Text>
@@ -86,8 +110,8 @@ export default function DonationHomeScreen() {
           style={styles.subscriptionBanner}
           onPress={() => navigation.navigate(Routes.Subscription)}>
           <View>
-            <Text style={styles.subscriptionTitle}>Auto-Giving</Text>
-            <Text style={styles.subscriptionDesc}>Set up recurring monthly offerings automatically</Text>
+            <Text style={styles.subscriptionTitle}>Monthly Subscription</Text>
+            <Text style={styles.subscriptionDesc}>Set up a recurring monthly offering automatically</Text>
           </View>
           <MaterialCommunityIcons name="chevron-right" style={styles.subscriptionArrow} />
         </TouchableOpacity>

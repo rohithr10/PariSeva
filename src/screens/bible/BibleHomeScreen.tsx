@@ -26,6 +26,8 @@ import type { AppLanguage } from "../../i18n";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopSafeArea from "../../components/common/TopSafeArea/TopSafeArea";
+import { BibleControls } from "../../components/common/BibleControls/BibleControls";
+import { useBibleTheme } from "../../hooks/useBibleTheme";
 
 const CARD_WIDTH =
   (Dimensions.get("window").width - Spacing.screen * 2 - Spacing.xs * 2) / 3;
@@ -39,6 +41,7 @@ export default function BibleHomeScreen() {
   const navigation = useNavigation<any>();
   const { t, i18n } = useTranslation();
   const lang = (i18n.language as AppLanguage) ?? "en";
+  const { theme } = useBibleTheme();
 
   const [tab, setTab] = useState<"OT" | "NT">("OT");
   const [search, setSearch] = useState("");
@@ -88,16 +91,23 @@ export default function BibleHomeScreen() {
     });
 
   return (
-    <SafeAreaView style={styles.container} edges={["left", "right"]}>
-      <TopSafeArea color={Colors.primary.navy} />
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={Colors.primary.navyDark}
-      />
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.bg }]}
+      edges={["left", "right"]}
+    >
+      <TopSafeArea color={theme.headerBg} />
+      <StatusBar barStyle="light-content" backgroundColor={theme.headerBg} />
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t("bible.title", "Holy Bible")}</Text>
-        <Text style={styles.headerSub}>{TRANSLATION_LABEL[lang]}</Text>
+      <View style={[styles.header, { backgroundColor: theme.headerBg }]}>
+        <View style={styles.headerRow}>
+          <View style={styles.headerTitleWrap}>
+            <Text style={styles.headerTitle}>
+              {t("bible.title", "Holy Bible")}
+            </Text>
+            <Text style={styles.headerSub}>{TRANSLATION_LABEL[lang]}</Text>
+          </View>
+          <BibleControls variant="onDark" />
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -126,19 +136,19 @@ export default function BibleHomeScreen() {
         {/* Quick Access */}
         <View style={styles.quickRow}>
           <TouchableOpacity
-            style={styles.quickCard}
+            style={[styles.quickCard, { backgroundColor: theme.surface }]}
             onPress={() => navigation.navigate(Routes.Bookmarks)}
           >
             <MaterialCommunityIcons
               name="bookmark-outline"
-              style={styles.quickIcon}
+              style={[styles.quickIcon, { color: theme.accent }]}
             />
-            <Text style={styles.quickLabel}>
+            <Text style={[styles.quickLabel, { color: theme.textMuted }]}>
               {t("bible.bookmarks", "Bookmarks")}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.quickCard}
+            style={[styles.quickCard, { backgroundColor: theme.surface }]}
             onPress={() =>
               ntBooks[3] &&
               openBook("JHN", ntBooks[3].name, ntBooks[3].numberOfChapters)
@@ -146,12 +156,14 @@ export default function BibleHomeScreen() {
           >
             <MaterialCommunityIcons
               name="book-open-page-variant-outline"
-              style={styles.quickIcon}
+              style={[styles.quickIcon, { color: theme.accent }]}
             />
-            <Text style={styles.quickLabel}>{t("bible.gospels", "Gospels")}</Text>
+            <Text style={[styles.quickLabel, { color: theme.textMuted }]}>
+              {t("bible.gospels", "Gospels")}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.quickCard}
+            style={[styles.quickCard, { backgroundColor: theme.surface }]}
             onPress={() =>
               otBooks.find((b) => b.id === "PSA") &&
               openBook(
@@ -163,21 +175,26 @@ export default function BibleHomeScreen() {
           >
             <MaterialCommunityIcons
               name="music-clef-treble"
-              style={styles.quickIcon}
+              style={[styles.quickIcon, { color: theme.accent }]}
             />
-            <Text style={styles.quickLabel}>{t("bible.psalms", "Psalms")}</Text>
+            <Text style={[styles.quickLabel, { color: theme.textMuted }]}>
+              {t("bible.psalms", "Psalms")}
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Search */}
-        <View style={styles.searchBar}>
-          <MaterialCommunityIcons name="magnify" style={styles.searchIcon} />
+        <View style={[styles.searchBar, { backgroundColor: theme.surface }]}>
+          <MaterialCommunityIcons
+            name="magnify"
+            style={[styles.searchIcon, { color: theme.textMuted }]}
+          />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: theme.text }]}
             value={search}
             onChangeText={setSearch}
             placeholder={t("bible.search_book", "Search book...")}
-            placeholderTextColor={Colors.neutral.gray400}
+            placeholderTextColor={theme.textMuted}
           />
         </View>
 
@@ -186,16 +203,30 @@ export default function BibleHomeScreen() {
           {(["OT", "NT"] as const).map((tb) => (
             <TouchableOpacity
               key={tb}
-              style={[styles.tab, tab === tb && styles.tabActive]}
+              style={[
+                styles.tab,
+                { backgroundColor: theme.surface, borderColor: theme.border },
+                tab === tb && styles.tabActive,
+              ]}
               onPress={() => setTab(tb)}
             >
-              <Text style={[styles.tabText, tab === tb && styles.tabTextActive]}>
+              <Text
+                style={[
+                  styles.tabText,
+                  { color: theme.textMuted },
+                  tab === tb && styles.tabTextActive,
+                ]}
+              >
                 {tb === "OT"
                   ? t("bible.old_testament", "Old Testament")
                   : t("bible.new_testament", "New Testament")}
               </Text>
               <Text
-                style={[styles.tabCount, tab === tb && styles.tabTextActive]}
+                style={[
+                  styles.tabCount,
+                  { color: theme.textMuted },
+                  tab === tb && styles.tabTextActive,
+                ]}
               >
                 {tb === "OT"
                   ? `${otBooks.length}${showDeutero ? "+7" : ""} books`
@@ -209,7 +240,9 @@ export default function BibleHomeScreen() {
         {isLoading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={Colors.accent.gold} />
-            <Text style={styles.stateText}>Loading books…</Text>
+            <Text style={[styles.stateText, { color: theme.textMuted }]}>
+              Loading books…
+            </Text>
           </View>
         ) : isError ? (
           <View style={styles.center}>
@@ -218,7 +251,9 @@ export default function BibleHomeScreen() {
               size={40}
               color={Colors.neutral.gray400}
             />
-            <Text style={styles.stateText}>Couldn't load the Bible.</Text>
+            <Text style={[styles.stateText, { color: theme.textMuted }]}>
+              Couldn't load the Bible.
+            </Text>
             <TouchableOpacity style={styles.retryBtn} onPress={() => refetch()}>
               <Text style={styles.retryText}>Retry</Text>
             </TouchableOpacity>
@@ -228,15 +263,21 @@ export default function BibleHomeScreen() {
             {filtered.map((book) => (
               <TouchableOpacity
                 key={book.id}
-                style={styles.bookCard}
+                style={[styles.bookCard, { backgroundColor: theme.surface }]}
                 onPress={() =>
                   openBook(book.id, book.name, book.numberOfChapters)
                 }
               >
-                <Text style={styles.bookName} numberOfLines={2}>
+                <Text
+                  style={[
+                    styles.bookName,
+                    { color: theme.dark ? theme.text : Colors.primary.navy },
+                  ]}
+                  numberOfLines={2}
+                >
                   {book.name}
                 </Text>
-                <Text style={styles.bookChapters}>
+                <Text style={[styles.bookChapters, { color: theme.textMuted }]}>
                   {book.numberOfChapters} ch
                 </Text>
               </TouchableOpacity>
@@ -247,7 +288,11 @@ export default function BibleHomeScreen() {
               DEUTEROCANONICAL_BOOKS.map((book) => (
                 <View
                   key={book.name}
-                  style={[styles.bookCard, styles.bookCardDisabled]}
+                  style={[
+                    styles.bookCard,
+                    styles.bookCardDisabled,
+                    { backgroundColor: theme.surfaceAlt },
+                  ]}
                 >
                   <Text
                     style={[styles.bookName, styles.bookNameDisabled]}
@@ -275,6 +320,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 20,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: Spacing.sm,
+  },
+  headerTitleWrap: { flex: 1 },
   headerTitle: { fontSize: 26, fontWeight: "700", color: Colors.neutral.white },
   headerSub: { fontSize: 13, color: Colors.sky.blueLight, marginTop: 2 },
 

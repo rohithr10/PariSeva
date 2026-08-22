@@ -17,6 +17,13 @@ import Badge from "../../components/common/Badge/Badge";
 import type { MassTiming } from "../../types";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopSafeArea from "../../components/common/TopSafeArea/TopSafeArea";
+import { useAppSelector } from "../../hooks/useAppDispatch";
+import { selectChurch } from "../../store/slices/auth.slice";
+import {
+  callParish,
+  emailParish,
+  openDirections,
+} from "../../utils/contact";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -93,6 +100,7 @@ const SPECIAL: MassTiming[] = [
 
 export default function MassHomeScreen() {
   const navigation = useNavigation<any>();
+  const church = useAppSelector(selectChurch);
   const today = new Date().getDay();
   const [selectedDay, setSelectedDay] = useState(today);
 
@@ -215,7 +223,7 @@ export default function MassHomeScreen() {
                         ? "Tamil"
                         : mass.language === "en"
                         ? "English"
-                        : "Both"
+                        : "Bilingual"
                     }
                     variant={mass.language === "ta" ? "navy" : "gold"}
                     size="sm"
@@ -267,7 +275,10 @@ export default function MassHomeScreen() {
 
         {/* Contact */}
         <View style={styles.contactRow}>
-          <TouchableOpacity style={styles.contactBtn}>
+          <TouchableOpacity
+            style={styles.contactBtn}
+            onPress={() => callParish(church?.contact?.phone)}
+          >
             <BoxedIcon
               name="phone-outline"
               size={20}
@@ -276,7 +287,12 @@ export default function MassHomeScreen() {
             />
             <Text style={styles.contactLabel}>Call Office</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.contactBtn}>
+          <TouchableOpacity
+            style={styles.contactBtn}
+            onPress={() =>
+              emailParish(church?.contact?.email, "Parish enquiry")
+            }
+          >
             <BoxedIcon
               name="email-outline"
               size={20}
@@ -285,7 +301,10 @@ export default function MassHomeScreen() {
             />
             <Text style={styles.contactLabel}>Email</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.contactBtn}>
+          <TouchableOpacity
+            style={styles.contactBtn}
+            onPress={() => openDirections(church)}
+          >
             <BoxedIcon
               name="map-marker-outline"
               size={20}

@@ -21,10 +21,12 @@ export default function MassNavigator() {
         headerTitleStyle: { fontWeight: '600' },
       }}>
       <Stack.Screen name={Routes.MassHome} component={MassHomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name={Routes.LiveMass} component={LiveMassScreen} options={{ title: 'Live Mass' }} />
-      <Stack.Screen name={Routes.RecordedMass} component={RecordedMassScreen} options={{ title: 'Recorded Mass' }} />
-      <Stack.Screen name={Routes.MassTimings} component={MassTimingsScreen} options={{ title: 'Mass Timings' }} />
-      <Stack.Screen name={Routes.MassCalendar} component={MassCalendarScreen} options={{ title: 'Mass Calendar' }} />
+      {/* These screens draw their own header (with a back arrow), so the
+          native stack header stays hidden to avoid a second back arrow. */}
+      <Stack.Screen name={Routes.LiveMass} component={LiveMassScreen} options={{ headerShown: false }} />
+      <Stack.Screen name={Routes.RecordedMass} component={RecordedMassScreen} options={{ headerShown: false }} />
+      <Stack.Screen name={Routes.MassTimings} component={MassTimingsScreen} options={{ headerShown: false }} />
+      <Stack.Screen name={Routes.MassCalendar} component={MassCalendarScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

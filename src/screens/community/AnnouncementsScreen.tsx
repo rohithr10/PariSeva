@@ -3,20 +3,19 @@ import { View, Text, StyleSheet, FlatList, StatusBar, TouchableOpacity } from 'r
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/colors';
 import { Spacing, Radius, Shadow } from '../../constants/spacing';
+import { useAppSelector } from '../../hooks/useAppDispatch';
+import { selectAnnouncements } from '../../store/slices/church.slice';
+import { formatAnnouncementDate } from '../../constants/announcements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
 
-const ALL_ANNOUNCEMENTS = [
-  { id: 'a1', title: 'Sunday Mass Change', titleTA: 'ஞாயிறு திருப்பலி மாற்றம்', content: 'Sunday 9:30 AM Mass moved to 10:00 AM this week due to diocesan programme.', priority: 'high', date: 'Jun 5, 2026' },
-  { id: 'a2', title: 'Youth Annual Sports Day', titleTA: 'இளைஞர் ஆண்டு விளையாட்டு நாள்', content: 'Youth Annual Sports Day on June 22. Register with the Youth Club before June 18.', priority: 'normal', date: 'Jun 3, 2026' },
-  { id: 'a3', title: 'Parish Meeting', titleTA: 'பங்கு ஆலோசனை கூட்டம்', content: 'Monthly parish council meeting on June 10 at 7 PM in the parish hall.', priority: 'normal', date: 'Jun 1, 2026' },
-  { id: 'a4', title: 'Feast Day Preparations', titleTA: 'திருவிழா ஏற்பாடுகள்', content: 'Volunteers needed for Sacred Heart Feast Day preparations on June 18. Contact the parish office.', priority: 'high', date: 'May 28, 2026' },
-  { id: 'a5', title: "New Women's Club Members", titleTA: 'புதிய மாதர் சங்கம்', content: 'New membership drive for the Madar Sangam. All women above 18 are welcome.', priority: 'normal', date: 'May 20, 2026' },
-];
-
 export default function AnnouncementsScreen() {
   const navigation = useNavigation<any>();
+  // Shared with Home and the Admin screen, so newly posted announcements
+  // appear here immediately.
+  const announcements = useAppSelector(selectAnnouncements);
+
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <TopSafeArea color={Colors.primary.navy} />
@@ -27,17 +26,24 @@ export default function AnnouncementsScreen() {
         <View style={{ width: 32 }} />
       </View>
       <FlatList
-        data={ALL_ANNOUNCEMENTS}
-        keyExtractor={a => a.id}
+        data={announcements}
+        keyExtractor={a => a._id}
         contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>No announcements yet.</Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <View style={[styles.card, item.priority === 'high' && styles.cardHigh]}>
             <View style={styles.cardHeader}>
               <View style={[styles.priorityDot, item.priority === 'high' ? styles.dotHigh : styles.dotNormal]} />
-              <Text style={styles.date}>{item.date}</Text>
+              <Text style={styles.date}>
+                {formatAnnouncementDate(item.publishedAt)}
+              </Text>
             </View>
             <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.titleTA}>{item.titleTA}</Text>
+            {!!item.titleTA && <Text style={styles.titleTA}>{item.titleTA}</Text>}
             <Text style={styles.content}>{item.content}</Text>
           </View>
         )}
@@ -62,4 +68,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 15, fontWeight: '700', color: Colors.primary.navy, marginBottom: 2 },
   titleTA: { fontSize: 12, color: Colors.neutral.gray400, marginBottom: Spacing.xs },
   content: { fontSize: 13, color: Colors.neutral.gray600, lineHeight: 20 },
+  empty: { padding: Spacing.xl, alignItems: 'center' },
+  emptyText: { fontSize: 14, color: Colors.neutral.gray400 },
 });

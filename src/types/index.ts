@@ -185,6 +185,10 @@ export interface Bookmark {
   userId: string;
   verseId: string;
   book: string;
+  /** USFM book code (e.g. "JHN") — needed to reopen the verse in the reader. */
+  bookId?: string;
+  /** Total chapters in the book, so the reader can paginate straight away. */
+  numberOfChapters?: number;
   chapter: number;
   verse: number;
   text: string;

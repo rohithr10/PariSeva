@@ -13,8 +13,8 @@ import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
 const TIMINGS = [
   { id: '1', title: 'Tamil Mass', day: 'Sunday', time: '06:00 AM', language: 'Tamil', venue: 'Main Church', isActive: true },
   { id: '2', title: 'English Mass', day: 'Sunday', time: '07:30 AM', language: 'English', venue: 'Main Church', isActive: true },
-  { id: '3', title: 'Morning Mass', day: 'Weekdays', time: '06:30 AM', language: 'Both', venue: 'Chapel', isActive: true },
-  { id: '4', title: 'Evening Mass', day: 'Weekdays', time: '06:30 PM', language: 'Both', venue: 'Main Church', isActive: false },
+  { id: '3', title: 'Morning Mass', day: 'Weekdays', time: '06:30 AM', language: 'Bilingual', venue: 'Chapel', isActive: true },
+  { id: '4', title: 'Evening Mass', day: 'Weekdays', time: '06:30 PM', language: 'Bilingual', venue: 'Main Church', isActive: false },
 ];
 
 export default function AdminMassScreen() {

@@ -8,19 +8,30 @@ import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../constants/colors';
 import { Spacing, Radius, Shadow } from '../../constants/spacing';
 import Button from '../../components/common/Button/Button';
+import { adminApi } from '../../api/admin.api';
+import { useAppDispatch, useAppSelector } from '../../hooks/useAppDispatch';
+import {
+  addAnnouncement,
+  removeAnnouncement,
+  selectAnnouncements,
+} from '../../store/slices/church.slice';
+import { addLocalNotification } from '../../store/slices/notification.slice';
+import { buildLocalNotification } from '../../hooks/useNotifications';
+import { selectChurch } from '../../store/slices/auth.slice';
+import { formatAnnouncementDate } from '../../constants/announcements';
+import type { Announcement } from '../../types';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopSafeArea from '../../components/common/TopSafeArea/TopSafeArea';
 
-const ANNOUNCEMENTS = [
-  { id: 'a1', title: 'Sunday Mass Change', content: 'Sunday 9:30 AM Mass moved to 10:00 AM this week.', priority: 'high', date: 'Jun 5' },
-  { id: 'a2', title: 'Youth Annual Sports Day', content: 'Youth Annual Sports Day on June 22. Register before June 18.', priority: 'normal', date: 'Jun 3' },
-  { id: 'a3', title: 'Parish Meeting', content: 'Monthly parish council meeting on June 10 at 7 PM.', priority: 'normal', date: 'Jun 1' },
-];
-
 export default function AdminAnnouncementsScreen() {
   const navigation = useNavigation<any>();
-  const [announcements, setAnnouncements] = useState(ANNOUNCEMENTS);
+  const dispatch = useAppDispatch();
+  // The same list the app's Home feed and Announcements screen read, so a post
+  // made here is visible to members straight away.
+  const announcements = useAppSelector(selectAnnouncements);
+  const church = useAppSelector(selectChurch);
+
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -28,12 +39,40 @@ export default function AdminAnnouncementsScreen() {
   const [loading, setLoading] = useState(false);
 
   const handlePost = async () => {
-    if (!title || !content) return;
+    if (!title.trim() || !content.trim()) return;
     setLoading(true);
-    await new Promise<void>(r => setTimeout(r, 800));
+
+    const announcement: Announcement = {
+      _id: `a${Date.now()}`,
+      churchId: church?._id ?? 'c1',
+      title: title.trim(),
+      content: content.trim(),
+      type: 'general',
+      priority,
+      publishedAt: new Date().toISOString(),
+    };
+
+    // Publish to the backend when it's available; the local store is updated
+    // either way so the post never silently disappears.
+    try {
+      const { _id, publishedAt, ...payload } = announcement;
+      await adminApi.postAnnouncement(payload);
+    } catch {
+      /* offline / route not live yet — keep the local copy */
+    }
+
+    dispatch(addAnnouncement(announcement));
+    dispatch(
+      addLocalNotification(
+        buildLocalNotification({
+          title: announcement.title,
+          body: announcement.content,
+          type: 'announcement',
+        }),
+      ),
+    );
+
     setLoading(false);
-    const newAnn = { id: `a${Date.now()}`, title, content, priority, date: 'Just now' };
-    setAnnouncements(prev => [newAnn, ...prev]);
     setShowModal(false);
     setTitle(''); setContent(''); setPriority('normal');
   };
@@ -41,7 +80,14 @@ export default function AdminAnnouncementsScreen() {
   const deleteAnn = (id: string) => {
     Alert.alert('Delete', 'Delete this announcement?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => setAnnouncements(p => p.filter(a => a.id !== id)) },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          adminApi.deleteAnnouncement(id).catch(() => {});
+          dispatch(removeAnnouncement(id));
+        },
+      },
     ]);
   };
 
@@ -61,7 +107,7 @@ export default function AdminAnnouncementsScreen() {
 
       <FlatList
         data={announcements}
-        keyExtractor={a => a.id}
+        keyExtractor={a => a._id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <View style={[styles.card, item.priority === 'high' && styles.cardHigh]}>
@@ -69,9 +115,11 @@ export default function AdminAnnouncementsScreen() {
               <View style={styles.cardLeft}>
                 <Text style={styles.annTitle}>{item.title}</Text>
                 <Text style={styles.annContent} numberOfLines={2}>{item.content}</Text>
-                <Text style={styles.annDate}>{item.date}</Text>
+                <Text style={styles.annDate}>
+                  {formatAnnouncementDate(item.publishedAt)}
+                </Text>
               </View>
-              <TouchableOpacity onPress={() => deleteAnn(item.id)}>
+              <TouchableOpacity onPress={() => deleteAnn(item._id)}>
                 <MaterialCommunityIcons name="trash-can-outline" style={styles.deleteIcon} />
               </TouchableOpacity>
             </View>

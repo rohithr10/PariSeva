@@ -23,8 +23,9 @@ export default function BibleNavigator() {
       <Stack.Screen name={Routes.BibleHome} component={BibleHomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name={Routes.BibleReader} component={BibleReaderScreen} options={{ headerShown: false }} />
       <Stack.Screen name={Routes.DailyReading} component={DailyReadingScreen} options={{ headerShown: false }} />
-      <Stack.Screen name={Routes.Bookmarks} component={BookmarksScreen} options={{ title: 'Bookmarks' }} />
-      <Stack.Screen name={Routes.BibleNotes} component={BibleNotesScreen} options={{ title: 'Notes' }} />
+      {/* Both draw their own header, so the native one stays hidden. */}
+      <Stack.Screen name={Routes.Bookmarks} component={BookmarksScreen} options={{ headerShown: false }} />
+      <Stack.Screen name={Routes.BibleNotes} component={BibleNotesScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }

@@ -89,7 +89,7 @@ export default function MassTimingsScreen() {
                   t.language === 'ta' ? styles.langTA : t.language === 'en' ? styles.langEN : styles.langBoth,
                 ]}>
                   <Text style={styles.langText}>
-                    {t.language === 'ta' ? 'Tamil' : t.language === 'en' ? 'English' : 'Both'}
+                    {t.language === 'ta' ? 'Tamil' : t.language === 'en' ? 'English' : 'Bilingual'}
                   </Text>
                 </View>
               </View>

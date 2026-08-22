@@ -23,14 +23,25 @@ const PAYMENT_METHODS = [
 ];
 
 export default function MakeOfferingScreen({ navigation, route }: Props) {
-  const offeringType = route.params?.offeringType ?? 'Sunday Offering';
+  const offeringType = route.params?.offeringType ?? 'Mass Offering';
+  // A general donation is given towards a cause the giver names themselves.
+  const isDonation = offeringType === 'Donation';
+
   const [amount, setAmount] = useState('');
+  const [cause, setCause] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('upi');
   const [intention, setIntention] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const amountValid = !!amount && parseInt(amount, 10) >= 10;
+  const canPay = amountValid && (!isDonation || !!cause.trim());
+
   const handlePay = async () => {
-    if (!amount || parseInt(amount) < 10) {
+    if (isDonation && !cause.trim()) {
+      Alert.alert('Cause Required', 'Please enter what this donation is for.');
+      return;
+    }
+    if (!amountValid) {
       Alert.alert('Invalid Amount', 'Please enter a valid amount (minimum ₹10).');
       return;
     }
@@ -39,8 +50,8 @@ export default function MakeOfferingScreen({ navigation, route }: Props) {
     setLoading(false);
     navigation.navigate(Routes.DonationReceipt, {
       donationId: `D${Date.now()}`,
-      amount: parseInt(amount),
-      type: offeringType,
+      amount: parseInt(amount, 10),
+      type: isDonation ? `Donation — ${cause.trim()}` : offeringType,
     });
   };
 
@@ -53,7 +64,9 @@ export default function MakeOfferingScreen({ navigation, route }: Props) {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialCommunityIcons name="arrow-left" style={styles.backIcon} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Make Offering</Text>
+        <Text style={styles.headerTitle}>
+          {isDonation ? 'Donation' : 'Make Offering'}
+        </Text>
         <View style={{ width: 32 }} />
       </View>
 
@@ -64,6 +77,21 @@ export default function MakeOfferingScreen({ navigation, route }: Props) {
             <MaterialCommunityIcons name="hand-heart-outline" style={styles.offeringIcon} />
             <Text style={styles.offeringType}>{offeringType}</Text>
           </View>
+
+          {/* Cause — donations only */}
+          {isDonation && (
+            <>
+              <Text style={styles.label}>Cause</Text>
+              <TextInput
+                style={styles.causeInput}
+                value={cause}
+                onChangeText={setCause}
+                placeholder="e.g. Flood relief, Poor fund, Church roof repair"
+                placeholderTextColor={Colors.neutral.gray400}
+                maxLength={80}
+              />
+            </>
+          )}
 
           {/* Amount */}
           <Text style={styles.label}>Amount</Text>
@@ -128,7 +156,7 @@ export default function MakeOfferingScreen({ navigation, route }: Props) {
             fullWidth
             size="lg"
             style={styles.payBtn}
-            disabled={!amount || parseInt(amount) < 10}
+            disabled={!canPay}
           />
 
           <Text style={styles.secure}><MaterialCommunityIcons name="lock-outline" size={13} /> 100% Secure · Powered by Razorpay</Text>
@@ -199,6 +227,17 @@ const styles = StyleSheet.create({
   quickText: { fontSize: 14, color: Colors.neutral.gray600, fontWeight: '500' },
   quickTextActive: { color: Colors.neutral.white, fontWeight: '700' },
 
+  causeInput: {
+    backgroundColor: Colors.neutral.white,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.neutral.gray200,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: Colors.neutral.gray800,
+    marginBottom: Spacing.xs,
+  },
   intentionInput: {
     backgroundColor: Colors.neutral.white,
     borderRadius: Radius.lg,

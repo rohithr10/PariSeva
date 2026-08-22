@@ -23,7 +23,6 @@ import { selectDonationSummary } from "../../store/slices/donation.slice";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useDailyMeta, useReadingTexts } from "../../hooks/useDailyReadings";
 import type { AppLanguage } from "../../i18n";
-import type { Announcement } from "../../types";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopSafeArea from "../../components/common/TopSafeArea/TopSafeArea";
 
@@ -39,31 +38,6 @@ const QUICK_ACTIONS = [
     icon: "bullhorn-outline",
     labelKey: "home.club_events",
     route: Routes.Community,
-  },
-];
-
-const MOCK_ANNOUNCEMENTS: Announcement[] = [
-  {
-    _id: "a1",
-    churchId: "c1",
-    title: "Sunday Mass Change",
-    titleTA: "ஞாயிறு திருப்பலி மாற்றம்",
-    content:
-      "Sunday 9:30 AM Mass moved to 10:00 AM this week due to diocesan programme.",
-    type: "mass_change",
-    priority: "high",
-    publishedAt: new Date().toISOString(),
-  },
-  {
-    _id: "a2",
-    churchId: "c1",
-    title: "Youth Annual Sports Day",
-    titleTA: "இளைஞர் ஆண்டு விளையாட்டு நாள்",
-    content:
-      "Youth Annual Sports Day on June 22. Register with the Youth Club before June 18.",
-    type: "event",
-    priority: "normal",
-    publishedAt: new Date().toISOString(),
   },
 ];
 
@@ -97,8 +71,7 @@ export default function HomeScreen() {
   );
   const firstReadingText = dailyText.data?.first?.text;
 
-  const displayAnnouncements =
-    announcements.length > 0 ? announcements : MOCK_ANNOUNCEMENTS;
+  const displayAnnouncements = announcements;
   const firstName = user?.profile.firstName ?? "Friend";
 
   const openDrawer = useCallback(() => {
@@ -285,7 +258,9 @@ export default function HomeScreen() {
         {/* Announcements */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t("home.announcements")}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate(Routes.Announcements)}
+          >
             <Text style={styles.seeAll}>{t("home.see_all")}</Text>
           </TouchableOpacity>
         </View>
@@ -299,7 +274,9 @@ export default function HomeScreen() {
           >
             <View style={styles.annDot} />
             <View style={styles.annContent}>
-              <Text style={styles.annTitle}>{ann.title}</Text>
+              <Text style={styles.annTitle}>
+                {lang === "ta" && ann.titleTA ? ann.titleTA : ann.title}
+              </Text>
               <Text style={styles.annBody} numberOfLines={2}>
                 {ann.content}
               </Text>

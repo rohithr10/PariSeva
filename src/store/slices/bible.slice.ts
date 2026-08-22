@@ -40,6 +40,32 @@ const bibleSlice = createSlice({
     setBookmarks: (state, action: PayloadAction<Bookmark[]>) => {
       state.bookmarks = action.payload;
     },
+    /** Restores the persisted reader preferences + bookmarks on app launch. */
+    hydrateBible: (
+      state,
+      action: PayloadAction<{
+        bookmarks?: Bookmark[];
+        nightMode?: boolean;
+        fontSize?: number;
+      }>,
+    ) => {
+      state.bookmarks = action.payload.bookmarks ?? [];
+      state.nightMode = action.payload.nightMode ?? false;
+      if (action.payload.fontSize) state.fontSize = action.payload.fontSize;
+    },
+    /** Adds the verse if it isn't bookmarked yet, removes it if it is. */
+    toggleBookmark: (state, action: PayloadAction<Bookmark>) => {
+      const { bookId, book, chapter, verse } = action.payload;
+      const existing = state.bookmarks.find(
+        b =>
+          b.chapter === chapter &&
+          b.verse === verse &&
+          (bookId ? b.bookId === bookId : b.book === book),
+      );
+      state.bookmarks = existing
+        ? state.bookmarks.filter(b => b._id !== existing._id)
+        : [action.payload, ...state.bookmarks];
+    },
     addBookmark: (state, action: PayloadAction<Bookmark>) => {
       state.bookmarks = [action.payload, ...state.bookmarks];
     },
@@ -73,6 +99,8 @@ export const {
   setDailyReading,
   setBooks,
   setBookmarks,
+  hydrateBible,
+  toggleBookmark,
   addBookmark,
   removeBookmark,
   setCurrentPosition,
@@ -89,5 +117,13 @@ export const selectBookmarks = (state: { bible: BibleState }) => state.bible.boo
 export const selectBibleLanguage = (state: { bible: BibleState }) => state.bible.language;
 export const selectFontSize = (state: { bible: BibleState }) => state.bible.fontSize;
 export const selectNightMode = (state: { bible: BibleState }) => state.bible.nightMode;
+
+/** True when the given verse is already bookmarked. */
+export const isVerseBookmarked = (
+  bookmarks: Bookmark[],
+  bookId: string,
+  chapter: number,
+  verse: number,
+) => bookmarks.some(b => b.bookId === bookId && b.chapter === chapter && b.verse === verse);
 
 export default bibleSlice.reducer;

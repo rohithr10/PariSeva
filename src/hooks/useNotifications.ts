@@ -1,6 +1,13 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { notificationApi, DUMMY_NOTIFICATIONS } from '../api/notification.api';
+import { useAppDispatch, useAppSelector } from './useAppDispatch';
+import {
+  markNotificationRead,
+  markNotificationsRead,
+  selectLocalNotifications,
+  selectReadNotificationIds,
+} from '../store/slices/notification.slice';
 import type { AppNotification } from '../types';
 
 /**
@@ -8,12 +15,14 @@ import type { AppNotification } from '../types';
  *
  * If the `/notifications` endpoint isn't available yet, it transparently
  * falls back to DUMMY_NOTIFICATIONS so the screen still renders. Read-state
- * is tracked with a local overlay, so "mark as read" works in either mode;
- * the matching API call is fired best-effort and ignored on failure.
+ * lives in the store (not in this hook) so every consumer — the Home bell
+ * badge and the Notifications screen — sees the same counts; the matching API
+ * call is fired best-effort and ignored on failure.
  */
 export function useNotifications() {
-  // IDs the user has read locally this session (overlays server/dummy state).
-  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const dispatch = useAppDispatch();
+  const readIds = useAppSelector(selectReadNotificationIds);
+  const localNotifications = useAppSelector(selectLocalNotifications);
 
   const query = useQuery({
     queryKey: ['notifications'],
@@ -27,37 +36,43 @@ export function useNotifications() {
     placeholderData: DUMMY_NOTIFICATIONS,
   });
 
-  const source: AppNotification[] = query.isError
+  const remote: AppNotification[] = query.isError
     ? DUMMY_NOTIFICATIONS
     : query.data ?? [];
 
-  const notifications = useMemo(
+  // App-generated notifications (subscription receipts, new announcements)
+  // sit alongside the server's, newest first.
+  const source = useMemo(
     () =>
-      source.map(n =>
-        readIds.has(n._id) ? { ...n, read: true } : n,
+      [...localNotifications, ...remote].sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       ),
-    [source, readIds],
+    [localNotifications, remote],
   );
+
+  const notifications = useMemo(() => {
+    const read = new Set(readIds);
+    return source.map(n => (read.has(n._id) ? { ...n, read: true } : n));
+  }, [source, readIds]);
 
   const unreadCount = useMemo(
     () => notifications.filter(n => !n.read).length,
     [notifications],
   );
 
-  const markAsRead = useCallback((id: string) => {
-    setReadIds(prev => {
-      if (prev.has(id)) return prev;
-      const next = new Set(prev);
-      next.add(id);
-      return next;
-    });
-    notificationApi.markAsRead(id).catch(() => {});
-  }, []);
+  const markAsRead = useCallback(
+    (id: string) => {
+      dispatch(markNotificationRead(id));
+      notificationApi.markAsRead(id).catch(() => {});
+    },
+    [dispatch],
+  );
 
   const markAllAsRead = useCallback(() => {
-    setReadIds(new Set(source.map(n => n._id)));
+    dispatch(markNotificationsRead(source.map(n => n._id)));
     notificationApi.markAllAsRead().catch(() => {});
-  }, [source]);
+  }, [dispatch, source]);
 
   return {
     notifications,
@@ -68,5 +83,20 @@ export function useNotifications() {
     usingFallback: query.isError,
     markAsRead,
     markAllAsRead,
+  };
+}
+
+/** Builds an in-app notification with a unique id and the current timestamp. */
+export function buildLocalNotification(
+  input: Omit<AppNotification, '_id' | 'createdAt' | 'read'> &
+    Partial<Pick<AppNotification, '_id' | 'createdAt' | 'read'>>,
+): AppNotification {
+  return {
+    ...input,
+    _id:
+      input._id ??
+      `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    createdAt: input.createdAt ?? new Date().toISOString(),
+    read: input.read ?? false,
   };
 }
